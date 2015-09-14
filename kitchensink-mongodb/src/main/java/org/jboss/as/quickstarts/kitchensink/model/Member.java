@@ -31,7 +31,7 @@ import java.io.Serializable;
 //@Table(uniqueConstraints = @UniqueConstraint(columnNames = "email"))
 public class Member implements Serializable {
 
-    private Long id;
+    private String id;
 
     @NotNull
     @Size(min = 1, max = 25)
@@ -48,11 +48,11 @@ public class Member implements Serializable {
     @Digits(fraction = 0, integer = 12)
     private String phoneNumber;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

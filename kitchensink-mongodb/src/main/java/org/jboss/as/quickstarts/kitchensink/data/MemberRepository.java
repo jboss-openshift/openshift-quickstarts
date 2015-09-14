@@ -19,6 +19,7 @@ package org.jboss.as.quickstarts.kitchensink.data;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.jboss.as.quickstarts.kitchensink.mapper.MemberMapper;
 import org.jboss.as.quickstarts.kitchensink.model.Member;
 
@@ -36,8 +37,8 @@ public class MemberRepository {
     @Inject
     private MemberMapper memberMapper;
 
-    public Member findById(Long id) {
-        Document document = mongoCollection.find(new Document(MemberMapper.ATTR_ID, id)).first();
+    public Member findById(String id) {
+        Document document = mongoCollection.find(new Document(MemberMapper.ATTR_ID, new ObjectId(id))).first();
         return convert(document);
     }
 
