@@ -6,7 +6,7 @@ import org.jboss.as.quickstarts.kitchensink.model.Member;
 public class MemberMapper {
 
     public static final String ATTR_NAME = "name";
-    public static final String ATTR_ID = "id";
+    public static final String ATTR_ID = "_id";
     public static final String ATTR_EMAIL = "email";
     public static final String ATTR_PHONE_NUMBER = "phoneNumber";
 
