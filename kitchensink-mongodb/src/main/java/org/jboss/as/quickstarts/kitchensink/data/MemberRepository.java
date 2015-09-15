@@ -18,6 +18,7 @@ package org.jboss.as.quickstarts.kitchensink.data;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.jboss.as.quickstarts.kitchensink.mapper.MemberMapper;
@@ -38,12 +39,12 @@ public class MemberRepository {
     private MemberMapper memberMapper;
 
     public Member findById(String id) {
-        Document document = mongoCollection.find(new Document(MemberMapper.ATTR_ID, new ObjectId(id))).first();
+        Document document = mongoCollection.find(Filters.eq(MemberMapper.ATTR_ID, new ObjectId(id))).first();
         return convert(document);
     }
 
     public Member findByEmail(String email) {
-        FindIterable<Document> results = mongoCollection.find(new Document("email", email));
+        FindIterable<Document> results = mongoCollection.find(Filters.eq(MemberMapper.ATTR_EMAIL, email));
         return results.iterator().hasNext() ? convert(results.iterator().next()) : null;
     }
 
