@@ -21,7 +21,7 @@
     <artifactId>todolist-mongodb</artifactId>
     <version>1.0.0</version>
     <packaging>war</packaging>
-    <name>OpenShift Quickstarts: Todo List</name>
+    <name>OpenShift Quickstarts: Todo List: MongoDB</name>
     <description>Todo list</description>
 
     <parent>
