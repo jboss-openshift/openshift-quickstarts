@@ -9,17 +9,28 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+import java.util.Random;
 
 /**
- *
+ *  TODO: proper exception handling
+ *  TODO: initialize schema whenever necessary (what if db is not persistent and is restarted while app is running)
  */
 public class JdbcTodoListDAO implements TodoListDAO {
 
-    private long seq = 0;   // TODO: replace with auto-increment column or db sequence
+    private final DataSource dataSource;
 
     public JdbcTodoListDAO() {
+        dataSource = lookupDataSource();
         initializeSchemaIfNeeded();
+    }
+
+    private DataSource lookupDataSource() {
+        try {
+            Context initialContext = new InitialContext();
+            return (DataSource) initialContext.lookup(System.getenv("DB_JNDI"));
+        } catch (NamingException e) {
+            throw new RuntimeException("Could not look up datasource", e);
+        }
     }
 
     private void initializeSchemaIfNeeded() {
@@ -76,7 +87,7 @@ public class JdbcTodoListDAO implements TodoListDAO {
     }
 
     private long getNextId() {
-        return seq++;
+        return new Random().nextLong();
     }
 
     @Override
@@ -111,22 +122,11 @@ public class JdbcTodoListDAO implements TodoListDAO {
         }
     }
 
-    public Connection getConnection() {
-        try {
-            DataSource dataSource = getDataSource();
-            return dataSource.getConnection();
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public Connection getConnection() throws SQLException {
+        return getDataSource().getConnection();
     }
 
-    private DataSource getDataSource() throws NamingException {
-        Context initialContext = new InitialContext();
-//        Context envContext = (Context) initialContext.lookup("java:comp/env");
-        return (DataSource) initialContext.lookup(System.getenv("DB_JNDI"));
-
-//        return (DataSource) initialContext.lookup("java:jboss/datasources/SampleDS");
+    private DataSource getDataSource() {
+        return dataSource;
     }
 }
