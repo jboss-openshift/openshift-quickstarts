@@ -23,7 +23,7 @@ public class MainServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/html; charset=UTF-8");
         PrintWriter out = resp.getWriter();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(req.getServletContext().getResourceAsStream("index.html"), "UTF-8"));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(req.getServletContext().getResourceAsStream("/WEB-INF/index.html"), "UTF-8"));
         try {
             String line;
             boolean insideLoop = false;
