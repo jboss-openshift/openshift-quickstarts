@@ -18,6 +18,40 @@ public class JdbcTodoListDAO implements TodoListDAO {
 
     private long seq = 0;   // TODO: replace with auto-increment column or db sequence
 
+    public JdbcTodoListDAO() {
+        initializeSchemaIfNeeded();
+    }
+
+    private void initializeSchemaIfNeeded() {
+        try {
+            Connection connection = getConnection();
+            try {
+                if (!isSchemaInitialized(connection)) {
+                    connection.setAutoCommit(true);
+                    Statement statement = connection.createStatement();
+                    try {
+                        statement.executeUpdate("CREATE TABLE todo_entries (id bigint, summary VARCHAR(255), description TEXT)");
+                    } finally {
+                        statement.close();
+                    }
+                }
+            } finally {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean isSchemaInitialized(Connection connection) throws SQLException {
+        ResultSet rset = connection.getMetaData().getTables(null, null, "todo_entries", null);
+        try {
+            return rset.next();
+        } finally {
+            rset.close();
+        }
+    }
+
     @Override
     public void save(TodoEntry entry) {
         try {
