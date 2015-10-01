@@ -1,0 +1,14 @@
+package org.openshift.quickstarts.decisionserver.hellorules
+
+query "get greeting"()
+    greeting : Greeting()
+end
+
+rule "greet person"
+    when
+        person : Person()
+    then
+        String salutation = "Hello " + person.getName() + "!";
+        System.out.println("********** HelloRules.drl: " + salutation + " **********");
+        insert(new Greeting(salutation));
+end
