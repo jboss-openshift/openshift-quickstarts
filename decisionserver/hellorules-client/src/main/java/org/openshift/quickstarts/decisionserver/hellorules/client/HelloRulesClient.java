@@ -1,8 +1,10 @@
 package org.openshift.quickstarts.decisionserver.hellorules.client;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
@@ -12,13 +14,14 @@ import javax.naming.InitialContext;
 import org.kie.api.KieServices;
 import org.kie.api.command.BatchExecutionCommand;
 import org.kie.api.command.Command;
+import org.kie.api.command.KieCommands;
 import org.kie.api.runtime.ExecutionResults;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.StatelessKieSession;
 import org.kie.api.runtime.rule.QueryResults;
 import org.kie.api.runtime.rule.QueryResultsRow;
-import org.kie.internal.command.CommandFactory;
-import org.kie.internal.runtime.helper.BatchExecutionHelper;
+import org.kie.server.api.marshalling.Marshaller;
+import org.kie.server.api.marshalling.MarshallerFactory;
 import org.kie.server.api.marshalling.MarshallingFormat;
 import org.kie.server.api.model.ServiceResponse;
 import org.kie.server.client.KieServicesConfiguration;
@@ -84,7 +87,6 @@ public class HelloRulesClient {
         String path = "/kie-server/services/rest/server";
         KieServicesConfiguration config = KieServicesFactory.newRestConfiguration(
             getRemoteUrl("http", "localhost", "8080") + path,
-            //getUrl("http", "kie-app-dward.router.default.svc.cluster.local", null) + path,
             "kieserver", "kieserver1!");
         runRemote(config);
     }
@@ -105,8 +107,6 @@ public class HelloRulesClient {
         Properties props = new Properties();
         props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
         props.setProperty(Context.PROVIDER_URL, getRemoteUrl("tcp", "localhost", "61616"));
-        //props.setProperty(Context.PROVIDER_URL, getUrl("ssl", "secure-kie-app-dward.router.default.svc.cluster.local", "443"));
-        //System.setProperty ("jsse.enableSNIExtension", "true");
         props.setProperty(Context.SECURITY_PRINCIPAL, "kieserver");
         props.setProperty(Context.SECURITY_CREDENTIALS, "kieserver1!");
         InitialContext context = new InitialContext(props);
@@ -124,7 +124,11 @@ public class HelloRulesClient {
         BatchExecutionCommand batch = createBatch();
         ServiceResponse<String> response = client.executeCommands("HelloRulesContainer", batch);
         System.out.println(response);
-        ExecutionResults execResults = (ExecutionResults)BatchExecutionHelper.newXStreamMarshaller().fromXML(response.getResult());
+        Set<Class<?>> classes = new HashSet<Class<?>>();
+        classes.add(Person.class);
+        classes.add(Greeting.class);
+        Marshaller marshaller = MarshallerFactory.getMarshaller(classes, config.getMarshallingFormat(), Person.class.getClassLoader());
+        ExecutionResults execResults = marshaller.unmarshall(response.getResult(), ExecutionResults.class);
         handleResults(execResults);
     }
 
@@ -150,10 +154,11 @@ public class HelloRulesClient {
     private BatchExecutionCommand createBatch() {
         Person person = new Person(System.getProperty("user.name"));
         List<Command<?>> cmds = new ArrayList<Command<?>>();
-        cmds.add(CommandFactory.newInsert(person));
-        cmds.add(CommandFactory.newFireAllRules());
-        cmds.add(CommandFactory.newQuery("greetings", "get greeting"));
-        return CommandFactory.newBatchExecution(cmds, "HelloRulesSession");
+        KieCommands commands = KieServices.Factory.get().getCommands();
+        cmds.add(commands.newInsert(person));
+        cmds.add(commands.newFireAllRules());
+        cmds.add(commands.newQuery("greetings", "get greeting"));
+        return commands.newBatchExecution(cmds, "HelloRulesSession");
     }
 
     private void handleResults(ExecutionResults execResults) {
