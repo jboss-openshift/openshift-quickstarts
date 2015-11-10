@@ -9,6 +9,6 @@ rule "greet person"
         person : Person()
     then
         String salutation = "Hello " + person.getName() + "!";
-        System.out.println("********** HelloRules.drl: " + salutation + " **********");
+        System.out.println("********** HelloRules DRL: " + salutation + " **********");
         insert(new Greeting(salutation));
 end

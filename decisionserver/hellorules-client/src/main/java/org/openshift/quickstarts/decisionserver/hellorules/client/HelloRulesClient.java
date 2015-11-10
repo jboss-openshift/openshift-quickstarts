@@ -1,5 +1,12 @@
 package org.openshift.quickstarts.decisionserver.hellorules.client;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
+import java.net.Proxy;
+import java.net.URL;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +17,12 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.kie.api.KieServices;
 import org.kie.api.command.BatchExecutionCommand;
@@ -20,6 +33,7 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.StatelessKieSession;
 import org.kie.api.runtime.rule.QueryResults;
 import org.kie.api.runtime.rule.QueryResultsRow;
+import org.kie.remote.common.rest.KieRemoteHttpRequest;
 import org.kie.server.api.marshalling.Marshaller;
 import org.kie.server.api.marshalling.MarshallerFactory;
 import org.kie.server.api.marshalling.MarshallingFormat;
@@ -29,126 +43,111 @@ import org.kie.server.client.KieServicesFactory;
 import org.kie.server.client.RuleServicesClient;
 import org.openshift.quickstarts.decisionserver.hellorules.Greeting;
 import org.openshift.quickstarts.decisionserver.hellorules.Person;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HelloRulesClient {
 
+    private static final Logger logger = LoggerFactory.getLogger(HelloRulesClient.class);
+
     public static void main(String... args) throws Exception {
+        HelloRulesClient client = new HelloRulesClient();
+        String command = (args != null && args.length > 0) ? args[0] : null;
+        HelloRulesCallback callback = new HelloRulesCallback();
+        if (client.runCommand(command, callback)) {
+            logger.info("********** " + callback.getSalutation() + " **********");
+        } else {
+            throw new Exception("Nothing run! Must specify -Dexec.args=runLocal (or runRemoteRest, runRemoteHornetMQ, runRemoteActiveMQ).");
+        }
+    }
+
+    // package-protected for HelloRulesServlet
+    boolean runCommand(String command, HelloRulesCallback callback) throws Exception {
         boolean run = false;
-        if (args != null && args.length > 0) {
-            HelloRulesClient client = new HelloRulesClient(null);
-            for (String method : args) {
-                if ("runLocal".equals(method)) {
-                    client.runLocal();
-                    run = true;
-                } else if ("runRemoteRest".equals(method)) {
-                    client.runRemoteRest();
-                    run = true;
-                } else if ("runRemoteHornetQ".equals(method)) {
-                    client.runRemoteHornetQ();
-                    run = true;
-                } else if ("runRemoteActiveMQ".equals(method)) {
-                    client.runRemoteActiveMQ();
-                    run = true;
-                }
-            }
+        command = trimToNull(command);
+        HelloRulesClient client = new HelloRulesClient();
+        if ("runLocal".equals(command)) {
+            client.runLocal(callback);
+            run = true;
+        } else if ("runRemoteRest".equals(command)) {
+            client.runRemoteRest(callback);
+            run = true;
+        } else if ("runRemoteHornetQ".equals(command)) {
+            client.runRemoteHornetQ(callback);
+            run = true;
+        } else if ("runRemoteActiveMQ".equals(command)) {
+            client.runRemoteActiveMQ(callback);
+            run = true;
         }
-        if (!run) {
-            throw new Exception("Nothing run! Must specify -Dexec.args=runLocal" +
-                " (or runRemoteRest, runRemoteHornetMQ, runRemoteActiveMQ).");
-        }
+        return run;
     }
 
-    private final HelloRulesCallback callback;
-
-    public static class HelloRulesCallback {
-        public HelloRulesCallback() {}
-        public int queryResultsSize = 0;
-        public String salutation = null;
-        public void reset() {
-            queryResultsSize = 0;
-            salutation = null;
-        }
-    }
-
-    // See HelloRulesTest for HelloRulesCallback usage.
-    public HelloRulesClient(HelloRulesCallback callback) {
-        this.callback = callback != null ? callback : new HelloRulesCallback();
-    }
-
-    public void runLocal() {
+    // package-protected for HelloRulesTest
+    void runLocal(HelloRulesCallback callback) {
         KieContainer container = KieServices.Factory.get().getKieClasspathContainer();
         StatelessKieSession session = container.newStatelessKieSession();
         BatchExecutionCommand batch = createBatch();
         ExecutionResults execResults = session.execute(batch);
-        handleResults(execResults);
+        handleResults(callback, execResults);
     }
 
-    public void runRemoteRest() {
-        String path = "/kie-server/services/rest/server";
-        KieServicesConfiguration config = KieServicesFactory.newRestConfiguration(
-            getRemoteUrl("http", "localhost", "8080") + path,
-            "kieserver", "kieserver1!");
-        runRemote(config);
+    private void runRemoteRest(HelloRulesCallback callback) throws Exception {
+        String baseurl = getBaseUrl(callback, "http", "localhost", "8080");
+        String resturl = baseurl + "/kie-server/services/rest/server";
+        logger.debug("---------> resturl: " + resturl);
+        String username = getUsername(callback);
+        String password = getPassword(callback);
+        KieServicesConfiguration config = KieServicesFactory.newRestConfiguration(resturl, username, password);
+        if (resturl.toLowerCase().startsWith("https")) {
+            config.setUseSsl(true);
+            forgiveUnknownCert();
+        }
+        runRemote(callback, config);
     }
 
-    private void runRemoteHornetQ() throws Exception {
+    private void runRemoteHornetQ(HelloRulesCallback callback) throws Exception {
+        String baseurl = getBaseUrl(callback, "remote", "localhost", "4447");
+        String username = getUsername(callback);
+        String password = getPassword(callback);
         Properties props = new Properties();
         props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
-        props.setProperty(Context.PROVIDER_URL, getRemoteUrl("remote", "localhost", "4447"));
-        props.setProperty(Context.SECURITY_PRINCIPAL, "kieserver");
-        props.setProperty(Context.SECURITY_CREDENTIALS, "kieserver1!");
+        props.setProperty(Context.PROVIDER_URL, baseurl);
+        props.setProperty(Context.SECURITY_PRINCIPAL, username);
+        props.setProperty(Context.SECURITY_CREDENTIALS, password);
         InitialContext context = new InitialContext(props);
-        KieServicesConfiguration config = KieServicesFactory.newJMSConfiguration(context,
-            "kieserver", "kieserver1!");
-        runRemote(config);
+        KieServicesConfiguration config = KieServicesFactory.newJMSConfiguration(context, username, password);
+        runRemote(callback, config);
     }
 
-    private void runRemoteActiveMQ() throws Exception {
+    private void runRemoteActiveMQ(HelloRulesCallback callback) throws Exception {
+        String baseurl = getBaseUrl(callback, "tcp", "localhost", "61616");
+        String username = getUsername(callback);
+        String password = getPassword(callback);
         Properties props = new Properties();
         props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-        props.setProperty(Context.PROVIDER_URL, getRemoteUrl("tcp", "localhost", "61616"));
-        props.setProperty(Context.SECURITY_PRINCIPAL, "kieserver");
-        props.setProperty(Context.SECURITY_CREDENTIALS, "kieserver1!");
+        props.setProperty(Context.PROVIDER_URL, baseurl);
+        props.setProperty(Context.SECURITY_PRINCIPAL, username);
+        props.setProperty(Context.SECURITY_CREDENTIALS, password);
         InitialContext context = new InitialContext(props);
         ConnectionFactory connectionFactory = (ConnectionFactory)context.lookup("ConnectionFactory");
         Queue requestQueue = (Queue)context.lookup("dynamicQueues/queue/KIE.SERVER.REQUEST");
         Queue responseQueue = (Queue)context.lookup("dynamicQueues/queue/KIE.SERVER.RESPONSE");
-        KieServicesConfiguration config = KieServicesFactory.newJMSConfiguration(connectionFactory, requestQueue, responseQueue,
-            "kieserver", "kieserver1!");
-        runRemote(config);
+        KieServicesConfiguration config = KieServicesFactory.newJMSConfiguration(connectionFactory, requestQueue, responseQueue, username, password);
+        runRemote(callback, config);
     }
 
-    private void runRemote(KieServicesConfiguration config) {
+    private void runRemote(HelloRulesCallback callback, KieServicesConfiguration config) {
         config.setMarshallingFormat(MarshallingFormat.XSTREAM);
         RuleServicesClient client = KieServicesFactory.newKieServicesClient(config).getServicesClient(RuleServicesClient.class);
         BatchExecutionCommand batch = createBatch();
         ServiceResponse<String> response = client.executeCommands("HelloRulesContainer", batch);
-        System.out.println(response);
+        logger.info(String.valueOf(response));
         Set<Class<?>> classes = new HashSet<Class<?>>();
         classes.add(Person.class);
         classes.add(Greeting.class);
         Marshaller marshaller = MarshallerFactory.getMarshaller(classes, config.getMarshallingFormat(), Person.class.getClassLoader());
         ExecutionResults execResults = marshaller.unmarshall(response.getResult(), ExecutionResults.class);
-        handleResults(execResults);
-    }
-
-    private String getRemoteUrl(String defaultProtocol, String defaultHost, String defaultPort) {
-        String protocol = trimToNull(System.getProperty("protocol", defaultProtocol));
-        String host = trimToNull(System.getProperty("host", defaultHost));
-        String port = trimToNull(System.getProperty("port", defaultPort));
-        String url = protocol + "://" + host + (port != null ? ":" + port : "");
-        System.out.println("---------> url: " + url);
-        return url;
-    }
-
-    private String trimToNull(String str) {
-        if (str != null) {
-            str = str.trim();
-            if (str.length() == 0) {
-                str = null;
-            }
-        }
-        return str;
+        handleResults(callback, execResults);
     }
 
     private BatchExecutionCommand createBatch() {
@@ -161,20 +160,108 @@ public class HelloRulesClient {
         return commands.newBatchExecution(cmds, "HelloRulesSession");
     }
 
-    private void handleResults(ExecutionResults execResults) {
-        callback.reset();
+    private void handleResults(HelloRulesCallback callback, ExecutionResults execResults) {
         QueryResults queryResults = (QueryResults)execResults.getValue("greetings");
-        callback.queryResultsSize = queryResults.size();
-        String salutation = null;
-        for (QueryResultsRow queryResult : queryResults) {
-            Greeting greeting = (Greeting)queryResult.get("greeting");
-            if (greeting != null) {
-                salutation = greeting.getSalutation();
-                break;
+        if (queryResults != null) {
+            callback.setQueryResultsSize(queryResults.size());
+            for (QueryResultsRow queryResult : queryResults) {
+                Greeting greeting = (Greeting)queryResult.get("greeting");
+                if (greeting != null) {
+                    callback.setSalutation(greeting.getSalutation());
+                    break;
+                }
             }
         }
-        System.out.println("********** HelloRulesClient.java: " + salutation + " **********");
-        callback.salutation = salutation;
+    }
+
+    private String getBaseUrl(HelloRulesCallback callback, String defaultProtocol, String defaultHost, String defaultPort) {
+        String protocol = trimToNull(callback.getProtocol());
+        if (protocol == null) {
+            protocol = trimToNull(System.getProperty("protocol", defaultProtocol));
+        }
+        String host = trimToNull(callback.getHost());
+        if (host == null) {
+            host = trimToNull(System.getProperty("host", System.getProperty("jboss.bind.address", defaultHost)));
+        }
+        String port = trimToNull(callback.getPort());
+        if (port == null) {
+            if ("https".equalsIgnoreCase(protocol)) {
+                defaultPort = null;
+            }
+            port = trimToNull(System.getProperty("port", defaultPort));
+        }
+        String baseurl = protocol + "://" + host + (port != null ? ":" + port : "");
+        logger.info("---------> baseurl: " + baseurl);
+        return baseurl;
+    }
+
+    private String getUsername(HelloRulesCallback callback) {
+        String username = trimToNull(callback.getUsername());
+        if (username == null) {
+            username = trimToNull(System.getProperty("username", "kieserver"));
+        }
+        logger.debug("---------> username: " + username);
+        return username;
+    }
+
+    private String getPassword(HelloRulesCallback callback) {
+        String password = callback.getPassword();
+        if (password == null) {
+            password = System.getProperty("password", "kieserver1!");
+        }
+        logger.debug("---------> password: " + password);
+        return password;
+    }
+
+    private String trimToNull(String str) {
+        if (str != null) {
+            str = str.trim();
+            if (str.length() == 0) {
+                str = null;
+            }
+        }
+        return str;
+    }
+
+    // only needed for non-production test scenarios where the TLS certificate isn't set up properly
+    private void forgiveUnknownCert() throws Exception {
+        KieRemoteHttpRequest.ConnectionFactory connf = new KieRemoteHttpRequest.ConnectionFactory() {
+            public HttpURLConnection create(URL u) throws IOException {
+                return forgiveUnknownCert((HttpURLConnection)u.openConnection());
+            }
+            public HttpURLConnection create(URL u, Proxy p) throws IOException {
+                return forgiveUnknownCert((HttpURLConnection)u.openConnection(p));
+            }
+            private HttpURLConnection forgiveUnknownCert(HttpURLConnection conn) throws IOException {
+                if (conn instanceof HttpsURLConnection) {
+                    HttpsURLConnection sconn = HttpsURLConnection.class.cast(conn);
+                    sconn.setHostnameVerifier(new HostnameVerifier() {
+                        public boolean verify(String arg0, SSLSession arg1) {
+                            return true;
+                        }
+                    });
+                    try {
+                        SSLContext context = SSLContext.getInstance("TLS");
+                        context.init(null, new TrustManager[] {
+                            new X509TrustManager() {
+                                public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
+                                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
+                                public X509Certificate[] getAcceptedIssuers() {
+                                    return null;
+                                }
+                            }
+                        }, null);
+                        sconn.setSSLSocketFactory(context.getSocketFactory());
+                    } catch (Exception e) {
+                        throw new IOException(e);
+                    }
+                }
+                return conn;
+            }
+        };
+        Field field = KieRemoteHttpRequest.class.getDeclaredField("CONNECTION_FACTORY");
+        field.setAccessible(true);
+        field.set(null, connf);
     }
 
 }
