@@ -35,6 +35,8 @@ public class HelloRulesServlet extends HttpServlet {
             callback.setPort(req.getParameter("port"));
             callback.setUsername(req.getParameter("username"));
             callback.setPassword(req.getParameter("password"));
+            callback.setQUsername(req.getParameter("qusername"));
+            callback.setQPassword(req.getParameter("qpassword"));
             if (client.runCommand(command, callback)) {
                 logger.info("********** " + callback.getSalutation() + " **********");
                 out.println("Result of " + command + ":<p><em>");
@@ -48,7 +50,7 @@ public class HelloRulesServlet extends HttpServlet {
                 out.println("<li><a href=\"/hellorules?command=runRemoteHornetQ\">runRemoteHornetQ</a> (only works with HornetQ)</li>");
                 out.println("<li><a href=\"/hellorules?command=runRemoteActiveMQ&host=amqhost\">runRemoteActiveMQ</a> (only works with ActiveMQ; must change host parameter to the amq host)</li>");
                 out.println("</ul></p>");
-                out.println("Can also specify protocol, host, port, username and/or password query parameters.<p/>");
+                out.println("Can also specify query parameters: protocol, host, port, username, password, qusername, qpassword.<p/>");
                 out.println("For example: /hellorules?command=runRemoteRest&amp;protocol=https&amp;host=kie-app-1-mumje&amp;port=8443 (if https is configured)");
             }
         } catch (Exception e) {

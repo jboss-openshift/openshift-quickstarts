@@ -109,13 +109,15 @@ public class HelloRulesClient {
         String baseurl = getBaseUrl(callback, "remote", "localhost", "4447");
         String username = getUsername(callback);
         String password = getPassword(callback);
+        String qusername = getQUsername(callback);
+        String qpassword = getQPassword(callback);
         Properties props = new Properties();
         props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
         props.setProperty(Context.PROVIDER_URL, baseurl);
         props.setProperty(Context.SECURITY_PRINCIPAL, username);
         props.setProperty(Context.SECURITY_CREDENTIALS, password);
         InitialContext context = new InitialContext(props);
-        KieServicesConfiguration config = KieServicesFactory.newJMSConfiguration(context, username, password);
+        KieServicesConfiguration config = KieServicesFactory.newJMSConfiguration(context, qusername, qpassword);
         runRemote(callback, config);
     }
 
@@ -123,6 +125,8 @@ public class HelloRulesClient {
         String baseurl = getBaseUrl(callback, "tcp", "localhost", "61616");
         String username = getUsername(callback);
         String password = getPassword(callback);
+        String qusername = getQUsername(callback);
+        String qpassword = getQPassword(callback);
         Properties props = new Properties();
         props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
         props.setProperty(Context.PROVIDER_URL, baseurl);
@@ -132,7 +136,7 @@ public class HelloRulesClient {
         ConnectionFactory connectionFactory = (ConnectionFactory)context.lookup("ConnectionFactory");
         Queue requestQueue = (Queue)context.lookup("dynamicQueues/queue/KIE.SERVER.REQUEST");
         Queue responseQueue = (Queue)context.lookup("dynamicQueues/queue/KIE.SERVER.RESPONSE");
-        KieServicesConfiguration config = KieServicesFactory.newJMSConfiguration(connectionFactory, requestQueue, responseQueue, username, password);
+        KieServicesConfiguration config = KieServicesFactory.newJMSConfiguration(connectionFactory, requestQueue, responseQueue, qusername, qpassword);
         runRemote(callback, config);
     }
 
@@ -211,6 +215,24 @@ public class HelloRulesClient {
         }
         logger.debug("---------> password: " + password);
         return password;
+    }
+
+    private String getQUsername(HelloRulesCallback callback) {
+        String qusername = trimToNull(callback.getQUsername());
+        if (qusername == null) {
+            qusername = trimToNull(System.getProperty("qusername", getUsername(callback)));
+        }
+        logger.debug("---------> qusername: " + qusername);
+        return qusername;
+    }
+
+    private String getQPassword(HelloRulesCallback callback) {
+        String qpassword = callback.getQPassword();
+        if (qpassword == null) {
+            qpassword = System.getProperty("qpassword", getPassword(callback));
+        }
+        logger.debug("---------> qpassword: " + qpassword);
+        return qpassword;
     }
 
     private String trimToNull(String str) {

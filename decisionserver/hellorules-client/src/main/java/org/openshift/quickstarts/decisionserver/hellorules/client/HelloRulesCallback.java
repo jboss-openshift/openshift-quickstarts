@@ -7,6 +7,8 @@ public class HelloRulesCallback {
     private String port = null;
     private String username = null;
     private String password = null;
+    private String qusername = null;
+    private String qpassword = null;
     private int queryResultsSize = 0;
     private String salutation = null;
 
@@ -48,6 +50,22 @@ public class HelloRulesCallback {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getQUsername() {
+        return qusername;
+    }
+
+    public void setQUsername(String qusername) {
+        this.qusername = qusername;
+    }
+
+    public String getQPassword() {
+        return qpassword;
+    }
+
+    public void setQPassword(String qpassword) {
+        this.qpassword = qpassword;
     }
 
     public int getQueryResultsSize() {
