@@ -25,9 +25,9 @@
         <!-- maven-compiler-plugin -->
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
-        <!-- NOTE: the "*-redhat-4" version can temporarily only be accessed by
+        <!-- NOTE: the "*-redhat-5" version can temporarily only be accessed by
              downloading the zip version of that maven release's repository -->
-        <kie.version>6.3.0.Final-redhat-4</kie.version>
+        <kie.version>6.3.0.Final-redhat-5</kie.version>
     </properties>
 
    <dependencies>
