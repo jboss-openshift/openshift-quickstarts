@@ -33,8 +33,7 @@ public class AMQServlet extends HttpServlet {
     private static final int NUM_MESSAGES_TO_BE_SENT = 100;
     //private static final String CONNECTION_FACTORY_NAME = "myJmsFactory";
     
-    private static final String CONNECTION_FACTORY_NAME = "amqp://" + System.getenv("AMQ_ADMIN_USERNAME")
-    	+ ":" + System.getenv("AMQ_ADMIN_PASSWORD") + "@" + System.getenv("AMQ_BROKER_AMQ_AMQP_PORT")
+    private static final String CONNECTION_FACTORY_NAME = "amqp://admin:admin" + "@" + System.getenv("AMQ_BROKER_AMQ_AMQP_PORT")
     	+ ":" + System.getenv("AMQ_BROKER_AMQ_AMQP_SERVICE_PORT") + "?ssl=false";
     
     private static final String DESTINATION_NAME = "queue/simple";
@@ -46,6 +45,7 @@ public class AMQServlet extends HttpServlet {
 		try {
 			// JNDI lookup of JMS Connection Factory and JMS Destination
 			Context context = new InitialContext();
+			System.out.println("CONNECTION_FACTORY_NAME: " + CONNECTION_FACTORY_NAME);
 			ConnectionFactory factory = (ConnectionFactory) context.lookup(CONNECTION_FACTORY_NAME);
 			Destination destination = (Destination) context.lookup(DESTINATION_NAME);
 
