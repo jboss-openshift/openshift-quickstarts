@@ -1,0 +1,1 @@
+MAVEN_ARGS="-s settings.xml -e package -Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga"

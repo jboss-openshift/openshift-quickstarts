@@ -66,10 +66,12 @@ public class AMQServlet extends HttpServlet {
 			producer.setTimeToLive(MESSAGE_TIME_TO_LIVE_MILLISECONDS);
 			
 			StringBuffer buf = new StringBuffer();
+			buf.append("{");
 			for (TodoEntry entry : todoListService.getAllEntries()) {
-				buf.append("<summary>"+ entry.getSummary().toString() +"</summary><description>"
-						+entry.getDescription().toString()+"</description>");
+				buf.append(entry.getSummary().toString() + ":" + entry.getDescription().toString() + ",");
 			}
+			buf.deleteCharAt(buf.length()-1);
+			buf.append("}");
 			
 			TextMessage message = session.createTextMessage(buf.toString());
 			System.out.println("Sending jms to destination: " + destination.toString());
