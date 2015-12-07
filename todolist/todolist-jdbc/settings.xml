@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<settings>
+	<mirrors>
+		<mirror>
+			<!--This sends everything else to /public -->
+			<id>nexus</id>
+			<mirrorOf>*</mirrorOf>
+			<url>http://repository.eformat.co.nz/nexus/content/groups/public/
+			</url>
+		</mirror>
+	</mirrors>
+	<profiles>
+		<profile>
+			<id>nexus</id>
+			<!--all requests to nexus via the mirror -->
+			<repositories>
+				<repository>
+					<id>central</id>
+					<url>http://central</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>central</id>
+					<url>http://central</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+		</profile>
+	</profiles>
+	<activeProfiles>
+		<activeProfile>nexus</activeProfile>
+	</activeProfiles>
+</settings>
