@@ -64,11 +64,18 @@ public class AMQServlet extends HttpServlet {
 			MessageProducer producer = session.createProducer(destination);
 
 			producer.setTimeToLive(MESSAGE_TIME_TO_LIVE_MILLISECONDS);
-			
+						
 			StringBuffer buf = new StringBuffer();
 			buf.append("{");
 			for (TodoEntry entry : todoListService.getAllEntries()) {
-				buf.append(entry.getSummary().toString() + ":" + entry.getDescription().toString() + ",");
+				buf.append("'summary'");
+				buf.append(": '");
+				buf.append(entry.getSummary().toString());
+				buf.append("','");
+				buf.append("'description'");
+				buf.append(": '");				
+				buf.append(entry.getDescription().toString());
+				buf.append("',");
 			}
 			buf.deleteCharAt(buf.length()-1);
 			buf.append("}");
