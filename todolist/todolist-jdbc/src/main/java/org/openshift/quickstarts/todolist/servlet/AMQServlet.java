@@ -8,6 +8,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.Context;
@@ -15,7 +16,7 @@ import javax.naming.InitialContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponse; 
 
 import org.openshift.quickstarts.todolist.service.TodoListService;
 
@@ -43,13 +44,18 @@ public class AMQServlet extends HttpServlet {
 
 		try {
 			// JNDI lookup of JMS Connection Factory and JMS Destination
-			Hashtable<String, String> env = new Hashtable<String, String>();
-			System.out.println("ConnectionFactory: " + CONNECTION_FACTORY);			
-			env.put("connectionfactory.myJmsFactory", CONNECTION_FACTORY);
-			env.put("queue", "todo");
-			Context context = new InitialContext(env);
-			ConnectionFactory factory = (ConnectionFactory) context.lookup("connectionfactory.myJmsFactory");
-			Destination destination = (Destination) context.lookup("queue");
+			
+			//java.naming.factory.initial org.apache.qpid.jms.jndi.JmsInitialContextFactory
+			
+			Hashtable<Object, Object> env = new Hashtable<Object, Object>();
+			env.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.qpid.jms.jndi.JmsInitialContextFactory");
+			env.put("connectionfactory.myFactoryLookup", CONNECTION_FACTORY);
+			env.put("queue.myQueueLookup", "todo");
+			Context context = new javax.naming.InitialContext(env);
+			
+			//Context context = new InitialContext(); 
+			ConnectionFactory factory = (ConnectionFactory) context.lookup(CONNECTION_FACTORY);
+			Queue destination = (Queue) context.lookup("myQueueLookup");
 
 			connection = factory.createConnection();
 			connection.start();
