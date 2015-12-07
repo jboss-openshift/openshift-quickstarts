@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.qpid.jms.jndi.JmsInitialContextFactory;
-
+import org.openshift.quickstarts.todolist.model.TodoEntry;
 import org.openshift.quickstarts.todolist.service.TodoListService;
 
 /**
@@ -64,13 +64,17 @@ public class AMQServlet extends HttpServlet {
 			MessageProducer producer = session.createProducer(destination);
 
 			producer.setTimeToLive(MESSAGE_TIME_TO_LIVE_MILLISECONDS);
-
-			for (int i = 1; i <= NUM_MESSAGES_TO_BE_SENT; i++) {
-				TextMessage message = session.createTextMessage(i + ". message sent");
-				System.out.println("Sending to destination: " + destination.toString() + " this text: '" + message.getText());
-				producer.send(message);
-				Thread.sleep(MESSAGE_DELAY_MILLISECONDS);
+			
+			StringBuffer buf = new StringBuffer();
+			for (TodoEntry entry : todoListService.getAllEntries()) {
+				buf.append("<summary>"+ entry.getSummary().toString() +"</summary><description>"
+						+entry.getDescription().toString()+"</description>");
 			}
+			
+			TextMessage message = session.createTextMessage(buf.toString());
+			System.out.println("Sending jms to destination: " + destination.toString());
+			producer.send(message);
+			Thread.sleep(MESSAGE_DELAY_MILLISECONDS);			
 
 			// Cleanup
 			producer.close();
