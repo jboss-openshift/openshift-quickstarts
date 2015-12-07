@@ -74,14 +74,14 @@ public class AMQServlet extends HttpServlet {
 			StringBuffer buf = new StringBuffer();
 			buf.append("{");
 			for (TodoEntry entry : todoListService.getAllEntries()) {
-				buf.append("'summary'");
-				buf.append(": '");
+				buf.append("\"summary\"");
+				buf.append(": \"");
 				buf.append(entry.getSummary().toString());
-				buf.append("', ");
-				buf.append("'description'");
-				buf.append(": '");
+				buf.append("\", ");
+				buf.append("\"description\"");
+				buf.append(": \"");
 				buf.append(entry.getDescription().toString());
-				buf.append("',");
+				buf.append("\",");
 			}
 			buf.deleteCharAt(buf.length() - 1);
 			buf.append("}");
