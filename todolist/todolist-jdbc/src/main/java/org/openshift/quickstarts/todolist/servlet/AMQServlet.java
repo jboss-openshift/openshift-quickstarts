@@ -35,8 +35,8 @@ public class AMQServlet extends HttpServlet {
     private static final int NUM_MESSAGES_TO_BE_SENT = 100;
     //private static final String CONNECTION_FACTORY_NAME = "myJmsFactory";
     
-    private static final String CONNECTION_FACTORY = "amqp://admin:admin" + "@" + System.getenv("AMQ_BROKER_AMQ_AMQP_SERVICE_HOST")
-    	+ ":" + System.getenv("AMQ_BROKER_AMQ_AMQP_SERVICE_PORT") + "?ssl=false";    
+    private static final String CONNECTION_FACTORY = "amqp://" + System.getenv("AMQ_BROKER_AMQ_AMQP_SERVICE_HOST")
+    	+ ":" + System.getenv("AMQ_BROKER_AMQ_AMQP_SERVICE_PORT") + "?ssl=false&jms.username=admin&jms.password=admin";    
     
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
