@@ -54,7 +54,7 @@ public class AMQServlet extends HttpServlet {
 			Context context = new javax.naming.InitialContext(env);
 			
 			//Context context = new InitialContext(); 
-			ConnectionFactory factory = (ConnectionFactory) context.lookup(CONNECTION_FACTORY);
+			ConnectionFactory factory = (ConnectionFactory) context.lookup("myFactoryLookup");
 			Queue destination = (Queue) context.lookup("myQueueLookup");
 
 			connection = factory.createConnection();
