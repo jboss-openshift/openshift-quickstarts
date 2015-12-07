@@ -1,6 +1,7 @@
 package org.openshift.quickstarts.todolist.servlet;
 
 import java.io.IOException;
+import java.util.Hashtable;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -33,10 +34,8 @@ public class AMQServlet extends HttpServlet {
     private static final int NUM_MESSAGES_TO_BE_SENT = 100;
     //private static final String CONNECTION_FACTORY_NAME = "myJmsFactory";
     
-    private static final String CONNECTION_FACTORY_NAME = "amqp://admin:admin" + "@" + System.getenv("AMQ_BROKER_AMQ_AMQP_SERVICE_HOST")
-    	+ ":" + System.getenv("AMQ_BROKER_AMQ_AMQP_SERVICE_PORT") + "?ssl=false";
-    
-    private static final String DESTINATION_NAME = "queue/simple";
+    private static final String CONNECTION_FACTORY = "amqp://admin:admin" + "@" + System.getenv("AMQ_BROKER_AMQ_AMQP_SERVICE_HOST")
+    	+ ":" + System.getenv("AMQ_BROKER_AMQ_AMQP_SERVICE_PORT") + "?ssl=false";    
     
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -44,10 +43,13 @@ public class AMQServlet extends HttpServlet {
 
 		try {
 			// JNDI lookup of JMS Connection Factory and JMS Destination
-			Context context = new InitialContext();
-			context.bind("connectionfactory.myJmsFactory", new String(CONNECTION_FACTORY_NAME));
+			Hashtable<String, String> env = new Hashtable<String, String>();
+			System.out.println("ConnectionFactory: " + CONNECTION_FACTORY);			
+			env.put("connectionfactory.myJmsFactory", CONNECTION_FACTORY);
+			env.put("queue", "todo");
+			Context context = new InitialContext(env);
 			ConnectionFactory factory = (ConnectionFactory) context.lookup("connectionfactory.myJmsFactory");
-			Destination destination = (Destination) context.lookup(DESTINATION_NAME);
+			Destination destination = (Destination) context.lookup("queue");
 
 			connection = factory.createConnection();
 			connection.start();
