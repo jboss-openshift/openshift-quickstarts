@@ -19,6 +19,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link type="text/css" rel="stylesheet" media="screen" href="../resources/css/bootstrap.min.css"/>
     <link type="text/css" rel="stylesheet" media="screen" href="../resources/css/bootstrap-theme.min.css"/>
+	<link type="text/css" rel="stylesheet" media="screen" href="../resources/css/custom.css"/>
 </head>
 <body>
 
@@ -50,7 +51,10 @@
                     <textarea name="description" id="description" class="form-control" placeholder="Full description of the task" rows="5"></textarea>
                 </div>
                 <button type="submit" class="btn btn-default">Submit</button>
-            </form>
+            </form>			
+			<form method="POST" action="/amq">
+                <button type="submit" class="btn btn-default">Send to AMQ</button>
+            </form>            
 
         </div>
     </div>
