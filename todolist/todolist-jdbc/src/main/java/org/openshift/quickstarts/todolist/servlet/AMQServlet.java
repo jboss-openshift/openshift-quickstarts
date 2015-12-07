@@ -5,18 +5,17 @@ import java.util.Hashtable;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse; 
+import org.apache.qpid.amqp_1_0.jms.jndi.PropertiesFileInitialContextFactory;
 
 import org.openshift.quickstarts.todolist.service.TodoListService;
 
@@ -48,7 +47,7 @@ public class AMQServlet extends HttpServlet {
 			//java.naming.factory.initial org.apache.qpid.jms.jndi.JmsInitialContextFactory
 			
 			Hashtable<Object, Object> env = new Hashtable<Object, Object>();
-			env.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.qpid.jms.jndi.JmsInitialContextFactory");
+			env.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.qpid.amqp_1_0.jms.jndi.PropertiesFileInitialContextFactory");
 			env.put("connectionfactory.myFactoryLookup", CONNECTION_FACTORY);
 			env.put("queue.myQueueLookup", "todo");
 			Context context = new javax.naming.InitialContext(env);
