@@ -33,9 +33,9 @@ public class AMQServlet extends HttpServlet {
     private static final int NUM_MESSAGES_TO_BE_SENT = 100;
     //private static final String CONNECTION_FACTORY_NAME = "myJmsFactory";
     
-    private static final String CONNECTION_FACTORY_NAME = "amqp://" + System.getProperty("AMQ_ADMIN_USERNAME")
-    	+ ":" + System.getProperty("AMQ_ADMIN_PASSWORD") + "@" + System.getProperty("AMQ_BROKER_AMQ_AMQP_PORT")
-    	+ ":" + System.getProperty("AMQ_BROKER_AMQ_AMQP_SERVICE_PORT") + "?ssl=false";
+    private static final String CONNECTION_FACTORY_NAME = "amqp://" + System.getenv("AMQ_ADMIN_USERNAME")
+    	+ ":" + System.getenv("AMQ_ADMIN_PASSWORD") + "@" + System.getenv("AMQ_BROKER_AMQ_AMQP_PORT")
+    	+ ":" + System.getenv("AMQ_BROKER_AMQ_AMQP_SERVICE_PORT") + "?ssl=false";
     
     private static final String DESTINATION_NAME = "queue/simple";
     
