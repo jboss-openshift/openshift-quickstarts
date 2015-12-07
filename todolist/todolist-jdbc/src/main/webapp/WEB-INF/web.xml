@@ -7,10 +7,19 @@
         <servlet-name>MainServlet</servlet-name>
         <servlet-class>org.openshift.quickstarts.todolist.servlet.MainServlet</servlet-class>
     </servlet>
+        <servlet>
+        <display-name>AMQServlet</display-name>
+        <servlet-name>AMQServlet</servlet-name>
+        <servlet-class>org.openshift.quickstarts.todolist.servlet.AMQServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>MainServlet</servlet-name>
         <url-pattern>/index.html</url-pattern>
+    </servlet-mapping>
+        <servlet-mapping>
+        <servlet-name>AMQServlet</servlet-name>
+        <url-pattern>/amq/*</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

@@ -17,7 +17,8 @@ import java.io.PrintWriter;
  */
 public class MainServlet extends HttpServlet {
 
-    private TodoListService todoListService = new TodoListService();
+	private static final long serialVersionUID = 2022706692705893948L;
+	private TodoListService todoListService = new TodoListService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

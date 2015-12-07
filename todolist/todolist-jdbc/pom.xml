@@ -49,10 +49,13 @@
         <version.war.plugin>2.1.1</version.war.plugin>
 
         <!-- maven-compiler-plugin -->
-        <maven.compiler.target>1.6</maven.compiler.target>
-        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.7</maven.compiler.source>
 
         <jboss-servlet-api_3.0_spec.version>1.0.0.Final</jboss-servlet-api_3.0_spec.version>
+        <activemq.version>5.9.0.redhat-610379</activemq.version>
+        <qpid.version>0.22</qpid.version>
+        
     </properties>
 
 
@@ -65,6 +68,16 @@
             <artifactId>jboss-servlet-api_3.0_spec</artifactId>
             <version>${jboss-servlet-api_3.0_spec.version}</version>
             <scope>provided</scope>
+        </dependency>
+	    <dependency>
+            <groupId>org.apache.qpid</groupId>
+            <artifactId>qpid-amqp-1-0-client-jms</artifactId>
+            <version>${qpid.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
+            <version>1.1.1</version>
         </dependency>
     </dependencies>
 
