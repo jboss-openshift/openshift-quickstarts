@@ -71,7 +71,7 @@ public class AMQServlet extends HttpServlet {
 				buf.append("'summary'");
 				buf.append(": '");
 				buf.append(entry.getSummary().toString());
-				buf.append("','");
+				buf.append("', ");
 				buf.append("'description'");
 				buf.append(": '");				
 				buf.append(entry.getDescription().toString());
