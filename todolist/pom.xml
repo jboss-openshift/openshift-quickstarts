@@ -20,7 +20,7 @@
 
     <groupId>org.openshift.quickstarts</groupId>
     <artifactId>todolist-parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.2.0.Final</version>
     <packaging>pom</packaging>
     <name>OpenShift Quickstarts: Todo List: Parent</name>
     <description>Todo list</description>

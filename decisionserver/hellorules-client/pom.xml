@@ -4,7 +4,7 @@
 
    <groupId>org.openshift.quickstarts</groupId>
    <artifactId>decisionserver-hellorules-client</artifactId>
-   <version>1.0.0-SNAPSHOT</version>
+   <version>1.2.0.Final</version>
    <packaging>war</packaging>
 
    <name>OpenShift Quickstarts: Decision Server: Hello Rules - Client</name>
@@ -90,7 +90,7 @@
       <dependency>
          <groupId>org.openshift.quickstarts</groupId>
          <artifactId>decisionserver-hellorules</artifactId>
-         <version>1.0.0-SNAPSHOT</version>
+         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.slf4j</groupId>

@@ -20,7 +20,7 @@
 
     <groupId>org.openshift.quickstarts</groupId>
     <artifactId>todolist-mongodb</artifactId>
-    <version>1.0.0</version>
+    <version>1.2.0.Final</version>
     <packaging>war</packaging>
     <name>OpenShift Quickstarts: Todo List: MongoDB</name>
     <description>Todo list</description>
