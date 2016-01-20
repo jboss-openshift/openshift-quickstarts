@@ -3,12 +3,12 @@
    <modelVersion>4.0.0</modelVersion>
 
    <groupId>org.openshift.quickstarts</groupId>
-   <artifactId>decisionserver-parent</artifactId>
+   <artifactId>procexecserver-parent</artifactId>
    <version>1.3.0-SNAPSHOT</version>
    <packaging>pom</packaging>
 
-   <name>OpenShift Quickstarts: Decision Server: Parent</name>
-   <description>OpenShift Quickstarts: Decision Server: Parent</description>
+   <name>OpenShift Quickstarts: Process Execution Server: Parent</name>
+   <description>OpenShift Quickstarts: Process Execution Server: Parent</description>
 
     <licenses>
         <license>
@@ -19,8 +19,8 @@
     </licenses>
 
     <modules>
-        <module>hellorules</module>
-        <module>hellorules-client</module>
+        <module>library</module>
+        <module>library-client</module>
     </modules>
 
 </project>
