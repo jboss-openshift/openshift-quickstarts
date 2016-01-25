@@ -50,4 +50,13 @@ public class TodoEntry {
     public void setId(Serializable id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return "TodoEntry{" +
+                "id=" + id +
+                ", summary='" + summary + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }
