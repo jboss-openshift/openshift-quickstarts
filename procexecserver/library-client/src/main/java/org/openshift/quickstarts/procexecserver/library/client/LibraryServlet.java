@@ -16,11 +16,7 @@ public class LibraryServlet extends HttpServlet {
 
     private static final Logger logger = LoggerFactory.getLogger(LibraryServlet.class);
 
-    private final LibraryClient client;
-
-    public LibraryServlet() {
-        client = new LibraryClient();
-    }
+    public LibraryServlet() {}
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -29,29 +25,32 @@ public class LibraryServlet extends HttpServlet {
         out.println("<html><head><title>LibraryServlet</title></head><body>");
         try {
             String command = req.getParameter("command");
-            LibraryCallback callback = new LibraryCallback();
-            callback.setProtocol(req.getParameter("protocol"));
-            callback.setHost(req.getParameter("host"));
-            callback.setPort(req.getParameter("port"));
-            callback.setUsername(req.getParameter("username"));
-            callback.setPassword(req.getParameter("password"));
-            callback.setQUsername(req.getParameter("qusername"));
-            callback.setQPassword(req.getParameter("qpassword"));
-            if (client.runCommand(command, callback)) {
-                logger.info("********** " + callback.getSuggestion().getBook().getTitle() + " **********");
-                out.println("Result of " + command + ":<p><em>");
-                out.println(callback.getSuggestion().getBook().getTitle());
-                out.println("</em></p>");
+            LibraryConfig appcfg = new LibraryConfig();
+            appcfg.setProtocol(req.getParameter("protocol"));
+            appcfg.setHost(req.getParameter("host"));
+            appcfg.setPort(req.getParameter("port"));
+            appcfg.setUsername(req.getParameter("username"));
+            appcfg.setPassword(req.getParameter("password"));
+            appcfg.setQUsername(req.getParameter("qusername"));
+            appcfg.setQPassword(req.getParameter("qpassword"));
+            appcfg.setHtml(true);
+            LibraryClient client = new LibraryClient(appcfg);
+            if (client.runCommand(command, out)) {
+                String result = "Command: " + command + " run.";
+                logger.info("********** " + result + " **********");
+                out.println("<p><em>" + result + "</em></p>");
                 out.println("<a href=\"/library\">Back</a>");
             } else {
+                String hostname = System.getenv("HOSTNAME");
                 out.println("<em>Nothing run!</em><p>Must specify ?command=&lt;command&gt;<br/><ul>");
                 out.println("<li><a href=\"/library?command=runLocal\">runLocal</a></li>");
                 out.println("<li><a href=\"/library?command=runRemoteRest\">runRemoteRest</a></li>");
+                out.println("<li><a href=\"/library?command=runRemoteRest&protocol=https&host=" + hostname + "&port=8443\">runRemoteRest (secure)</a></li>");
                 out.println("<li><a href=\"/library?command=runRemoteHornetQ\">runRemoteHornetQ</a> (only works with HornetQ)</li>");
                 out.println("<li><a href=\"/library?command=runRemoteActiveMQ&host=amqhost\">runRemoteActiveMQ</a> (only works with ActiveMQ; must change host parameter to the amq host)</li>");
                 out.println("</ul></p>");
                 out.println("Can also specify query parameters: protocol, host, port, username, password, qusername, qpassword.<p/>");
-                out.println("For example: /library?command=runRemoteRest&amp;protocol=https&amp;host=kie-app-1-mumje&amp;port=8443 (if https is configured)");
+                out.println("For example: /library?command=runRemoteRest&amp;protocol=https&amp;host=" + hostname + "&amp;port=8443 (if https is configured)");
             }
         } catch (Exception e) {
             out.println("<em>Oops!</em><p><font color=\"red\"><pre>");

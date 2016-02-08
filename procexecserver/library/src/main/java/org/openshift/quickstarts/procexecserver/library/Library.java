@@ -80,7 +80,7 @@ public final class Library implements Serializable {
         return book != null ? getQuantity(book.getIsbn()) : ZERO;
     }
 
-    public Loan attemptLoan(String isbn, String loanId) {
+    public Loan attemptLoan(String isbn, long loanId) {
         Loan loan = new Loan();
         loan.setId(loanId);
         Book book = getBook(isbn);

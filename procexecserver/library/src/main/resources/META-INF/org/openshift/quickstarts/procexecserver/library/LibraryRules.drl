@@ -10,7 +10,7 @@ import org.openshift.quickstarts.procexecserver.library.types.SuggestionResponse
 import function org.openshift.quickstarts.procexecserver.library.Library.library
 
 query "get suggestion"()
-    suggestion : SuggestionResponse()
+    suggestionResponse : SuggestionResponse()
 end
 
 rule "SuggestionRules"

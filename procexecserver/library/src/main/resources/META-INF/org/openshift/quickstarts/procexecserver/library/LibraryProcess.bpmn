@@ -8,7 +8,7 @@
   <bpmn2:itemDefinition id="_ItemDefinition_664" structureRef="org.openshift.quickstarts.procexecserver.library.types.ReturnRequest"/>
   <bpmn2:itemDefinition id="_ItemDefinition_666" structureRef="org.openshift.quickstarts.procexecserver.library.types.ReturnResponse"/>
   <bpmn2:signal id="Signal_1" name="ReturnSignal"/>
-  <bpmn2:process id="LoanProcess" tns:version="1" tns:packageName="org.openshift.quickstarts.procexecserver.library" tns:adHoc="false" name="LoanProcess" isExecutable="true" processType="Private">
+  <bpmn2:process id="LibraryProcess" tns:version="1" tns:packageName="org.openshift.quickstarts.procexecserver.library" tns:adHoc="false" name="LibraryProcess" isExecutable="true" processType="Private">
     <bpmn2:extensionElements>
       <tns:import name="org.openshift.quickstarts.procexecserver.library.Library"/>
       <tns:import name="org.openshift.quickstarts.procexecserver.library.types.Book"/>
@@ -37,8 +37,7 @@
       <bpmn2:outgoing>SequenceFlow_7</bpmn2:outgoing>
       <bpmn2:script>System.out.println(&quot;Attempting Loan...&quot;);
 String isbn = loanRequest.getIsbn();
-String loanId = String.valueOf(kcontext.getProcessInstance().getId());
-Loan loan = Library.library().attemptLoan(isbn, loanId);
+Loan loan = Library.library().attemptLoan(isbn, kcontext.getProcessInstance().getId());
 loanResponse = new LoanResponse();
 loanResponse.setLoan(loan);
 kcontext.setVariable(&quot;loanResponse&quot;, loanResponse);
@@ -98,7 +97,7 @@ System.out.println(&quot;Return acknowledged? &quot; + acknowledged);</bpmn2:scr
     <bpmn2:sequenceFlow id="SequenceFlow_32" tns:priority="1" sourceRef="InclusiveGateway_1" targetRef="IntermediateCatchEvent_6"/>
   </bpmn2:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_Process_1" bpmnElement="LoanProcess">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_1" bpmnElement="LibraryProcess">
       <bpmndi:BPMNShape id="BPMNShape_StartEvent_1" bpmnElement="StartEvent_1">
         <dc:Bounds height="36.0" width="36.0" x="50.0" y="94.0"/>
       </bpmndi:BPMNShape>

@@ -48,7 +48,7 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class Loan implements Serializable {
 
-    protected String id;
+    protected long id;
     protected boolean approved;
     protected String notes;
     @XmlElement(namespace = "urn:openshift-quickstarts:procexecserver-library:1.0")
@@ -56,25 +56,15 @@ public class Loan implements Serializable {
 
     /**
      * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
      */
-    public String getId() {
+    public long getId() {
         return id;
     }
 
     /**
      * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
      */
-    public void setId(String value) {
+    public void setId(long value) {
         this.id = value;
     }
 
