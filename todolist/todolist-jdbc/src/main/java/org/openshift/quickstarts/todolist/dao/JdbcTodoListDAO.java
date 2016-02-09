@@ -109,7 +109,7 @@ public class JdbcTodoListDAO implements TodoListDAO {
                         while (rset.next()) {
                             Long id = rset.getLong(1);
                             String summary = rset.getString(2);
-                            String description = rset.getString(2);
+                            String description = rset.getString(3);
                             list.add(new TodoEntry(id, summary, description));
                         }
                         return list;
