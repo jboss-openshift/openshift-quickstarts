@@ -1,0 +1,28 @@
+package org.openshift.quickstarts.processserver.library
+
+import java.util.LinkedList
+import java.util.Map
+import org.openshift.quickstarts.processserver.library.types.Book
+import org.openshift.quickstarts.processserver.library.types.Suggestion
+import org.openshift.quickstarts.processserver.library.types.SuggestionRequest
+import org.openshift.quickstarts.processserver.library.types.SuggestionResponse
+
+import function org.openshift.quickstarts.processserver.library.Library.library
+
+query "get suggestion"()
+    suggestionResponse : SuggestionResponse()
+end
+
+rule "SuggestionRules"
+    when
+        suggestionRequest   : SuggestionRequest(keyword : keyword)
+        books : LinkedList() from collect( Book(title contains keyword || synopsis contains keyword) from library().getAvailableBooks() )
+    then
+        Suggestion suggestion = new Suggestion();
+        if (books.size() > 0) {
+            suggestion.setBook((Book)books.iterator().next());
+        }
+        SuggestionResponse suggestionResponse = new SuggestionResponse();
+        suggestionResponse.setSuggestion(suggestion);
+        insert(suggestionResponse);
+end
