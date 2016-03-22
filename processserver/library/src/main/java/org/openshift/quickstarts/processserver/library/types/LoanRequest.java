@@ -71,4 +71,9 @@ public class LoanRequest implements Serializable {
         this.isbn = value;
     }
 
+    @Override
+    public String toString() {
+        return "LoanRequest [isbn=" + isbn + "]";
+    }
+
 }

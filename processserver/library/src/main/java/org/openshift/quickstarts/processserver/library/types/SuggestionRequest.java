@@ -71,4 +71,9 @@ public class SuggestionRequest implements Serializable {
         this.keyword = value;
     }
 
+    @Override
+    public String toString() {
+        return "SuggestionRequest [keyword=" + keyword + "]";
+    }
+
 }

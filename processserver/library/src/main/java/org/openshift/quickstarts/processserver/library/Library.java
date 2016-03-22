@@ -1,171 +1,150 @@
 package org.openshift.quickstarts.processserver.library;
 
-import java.io.Serializable;
-import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
 
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.kie.api.runtime.KieContext;
 import org.openshift.quickstarts.processserver.library.types.Book;
 import org.openshift.quickstarts.processserver.library.types.Loan;
-import org.openshift.quickstarts.processserver.library.types.ObjectFactory;
 
-@SuppressWarnings("serial")
-public final class Library implements Serializable {
+public final class Library {
+
+    private static final Object[][] INIT = new Object[][] {
+        new Object[] {"978-0-307-35193-7", "World War Z", "An Oral History of the Zombie War", 1},
+        new Object[] {"978-0-7360-9829-8", "Successful Sports Officiating", "American Sports Education Program.", 3},
+        new Object[] {"978-0-7434-8773-3", "The Time Machine", "H. G. Wells' story of a time traveler.", 8},
+        new Object[] {"978-1-101-15402-1", "The Island of Dr. Moreau", "H. G. Wells' story of what may be most relevant to modern ethical dimemmas.", 5},
+        new Object[] {"978-1-4000-5-80-2", "The Zombie Survival Guide", "Complete Protection from the Living Dead", 6},
+        new Object[] {"978-1-448-14153-1", "Doctor Who: Summer Falls", "Story of Amelia Williams.", 2},
+        new Object[] {"978-1-4516-7486-6", "Tesla, Man Out of Time", "Explores the brilliant and prescient mind of one of the twentieth century's greatest scientists and inventors, Nikola Tesla.", 4},
+        new Object[] {"978-1-59474-449-5", "Pride and Prejudice and Zombies", "The Classic Regency Romance -- Now with Ultraviolent Zombie Mayhem!", 7}
+    };
 
     private static final Library INSTANCE = new Library();
-    private static final Integer ZERO = Integer.valueOf(0);
-
-    private final Map<String, Book> isbns_to_books = new TreeMap<String, Book>();
-    private final Map<String, Integer> isbns_to_quantities = Collections.synchronizedMap(new TreeMap<String, Integer>());
-    private final Object librarian = new Object();
-
-    private Library() {
-        addBook("978-0-307-35193-7", "World War Z", "An Oral History of the Zombie War", 1);
-        addBook("978-0-7360-9829-8", "Successful Sports Officiating", "American Sports Education Program.", 3);
-        addBook("978-0-7434-8773-3", "The Time Machine", "H. G. Wells' story of a time traveler.", 8);
-        addBook("978-1-101-15402-1", "The Island of Dr. Moreau", "H. G. Wells' story of what may be most relevant to modern ethical dimemmas.", 5);
-        addBook("978-1-4000-5-80-2", "The Zombie Survival Guide", "Complete Protection from the Living Dead", 6);
-        addBook("978-1-448-14153-1", "Doctor Who: Summer Falls", "Story of Amelia Williams.", 2);
-        addBook("978-1-4516-7486-6", "Tesla, Man Out of Time", "Explores the brilliant and prescient mind of one of the twentieth century's greatest scientists and inventors, Nikola Tesla.", 4);
-        addBook("978-1-59474-449-5", "Pride and Prejudice and Zombies", "The Classic Regency Romance -- Now with Ultraviolent Zombie Mayhem!", 7);
-    }
-
-    private void addBook(String isbn, String title, String synopsis, int quantity) {
-        Book book = new Book();
-        book.setIsbn(isbn);
-        book.setTitle(title);
-        book.setSynopsis(synopsis);
-        isbns_to_books.put(isbn, book);
-        isbns_to_quantities.put(isbn, quantity);
-    }
-
-    public Collection<Book> getAllBooks() {
-        return isbns_to_books.values();
-    }
-
-    public Collection<Book> getAvailableBooks() {
-        synchronized (librarian) {
-            Collection<Book> books = new LinkedList<Book>();
-            for (Entry<String, Integer> entry : isbns_to_quantities.entrySet()) {
-                if (entry.getValue() > 0) {
-                    books.add(getBook(entry.getKey()));
-                }
-            }
-            return books;
-        }
-    }
-
-    public Book getBook(String isbn) {
-        return isbns_to_books.get(isbn);
-    }
-
-    public Integer getQuantity(String isbn) {
-        Integer quantity = null;
-        if (isbn != null) {
-            synchronized (librarian) {
-                quantity = isbns_to_quantities.get(isbn);
-            }
-        }
-        return quantity != null ? quantity : ZERO;
-    }
-
-    public Integer getQuantity(Book book) {
-        return book != null ? getQuantity(book.getIsbn()) : ZERO;
-    }
-
-    public Loan attemptLoan(String isbn, long loanId) {
-        Loan loan = new Loan();
-        loan.setId(loanId);
-        Book book = getBook(isbn);
-        if (book != null) {
-            synchronized (librarian) {
-                int quantity = getQuantity(book);
-                if (quantity > 0) {
-                    quantity--;
-                    isbns_to_quantities.put(isbn, quantity);
-                    loan.setApproved(true);
-                    loan.setNotes("Happy reading! Remaining copies: " + quantity);
-                    loan.setBook(book);
-                } else {
-                    loan.setApproved(false);
-                    loan.setNotes("Book has no copies available.");
-                }
-            }
-        } else {
-            loan.setApproved(false);
-            loan.setNotes("No book matching isbn: " + isbn);
-        }
-        return loan;
-    }
-
-    public boolean returnLoan(Loan loan) {
-        if (loan != null) {
-            Book book = loan.getBook();
-            if (book != null) {
-                String isbn = book.getIsbn();
-                if (isbn != null) {
-                    synchronized (librarian) {
-                        Integer quantity = isbns_to_quantities.get(isbn);
-                        if (quantity != null) {
-                            quantity = new Integer(quantity.intValue() + 1);
-                            isbns_to_quantities.put(isbn, quantity);
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    public String toString() {
-        return toString(false);
-    }
-
-    public String toString(boolean detailed) {
-        StringWriter sw = new StringWriter();
-        synchronized (librarian) {
-            try {
-                if (detailed) {
-                    JAXBContext ctx = JAXBContext.newInstance("org.openshift.quickstarts.processserver.library.types");
-                    Marshaller m = ctx.createMarshaller();
-                    m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-                    m.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-                    ObjectFactory of = new ObjectFactory();
-                    for (Book book : isbns_to_books.values()) {
-                        int quantity = isbns_to_quantities.get(book.getIsbn());
-                        sw.write("\nBook (quantity=" + quantity + ")\n");
-                        m.marshal(of.createBook(book), sw);
-                        sw.write('\n');
-                    }
-                } else {
-                    for (Book book : isbns_to_books.values()) {
-                        int quantity = isbns_to_quantities.get(book.getIsbn());
-                        sw.write(book.getTitle() + " (" + quantity + ")\n");
-                    }
-                }
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }
-        }
-        return sw.toString().trim();
-    }
 
     public static final Library library() {
         return INSTANCE;
     }
 
-    public static void main(String... args) {
-        System.out.println(library().toString(false));
-        System.out.println();
-        System.out.println(library().toString(true));
+    private EntityManager entityManager = null;
+
+    public synchronized Library init(KieContext kcontext) {
+        if (entityManager == null) {
+            EntityManagerFactory emf;
+            final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+            try {
+                // https://issues.jboss.org/browse/DROOLS-1108
+                ClassLoader cl = ((InternalKnowledgeBase)kcontext.getKieRuntime().getKieBase()).getRootClassLoader();
+                Thread.currentThread().setContextClassLoader(cl);
+                emf = Persistence.createEntityManagerFactory("library");
+            } finally {
+                Thread.currentThread().setContextClassLoader(tccl);
+            }
+            entityManager = emf.createEntityManager();
+            new LibraryTransaction<Object>(entityManager) {
+                @Override
+                public Object call() throws Exception {
+                    Query query = em().createQuery("select count(b) from Book b");
+                    Long result = (Long)query.getSingleResult();
+                    if (result.intValue() == 0) {
+                        for (Object[] b : INIT) {
+                            String isbn = (String)b[0];
+                            String title = (String)b[1];
+                            String synopsis = (String)b[2];
+                            Integer quantity = (Integer)b[3];
+                            for (int i=0; i < quantity; i++) {
+                                Book book = new Book(isbn, title, synopsis);
+                                em().persist(book);
+                            }
+                        }
+                    }
+                    return null;
+                }
+            }.transact();
+        }
+        return this;
+    }
+
+    public Collection<Book> getFirstAvailableBooks(final String keyword) {
+        return new LibraryTransaction<Collection<Book>>(entityManager) {
+            @Override
+            public Collection<Book> call() throws Exception {
+                Collection<Book> books = new ArrayList<Book>();
+                Query query = em().createQuery("from Book b where b.available = true and ( b.title like :title or b.synopsis like :synopsis )");
+                String kw = "%" + keyword + "%";
+                query.setParameter("title", kw);
+                query.setParameter("synopsis", kw);
+                List<?> results = query.getResultList();
+                Set<String> isbns = new HashSet<String>();
+                for (Object result : results) {
+                    Book book = (Book)result;
+                    if (!isbns.contains(book.getIsbn())) {
+                        isbns.add(book.getIsbn());
+                        books.add(book);
+                    }
+                }
+                return books;
+            }
+        }.transact();
+    }
+
+    public Loan attemptLoan(String isbn, long loanId) {
+        return new LibraryTransaction<Loan>(entityManager) {
+            @Override
+            public Loan call() throws Exception {
+                Loan loan = new Loan();
+                loan.setId(loanId);
+                Book book = null;
+                Query query = em().createQuery("from Book b where b.available = true and b.isbn = :isbn");
+                query.setParameter("isbn", isbn);
+                List<?> results = query.getResultList();
+                for (Object result : results) {
+                    book = (Book)result;
+                    break;
+                }
+                if (book != null) {
+                    book.setAvailable(false);
+                    em().merge(book);
+                    loan.setApproved(true);
+                    loan.setNotes("Happy reading! Remaining copies: " + (results.size() - 1));
+                    loan.setBook(book);
+                } else {
+                    loan.setApproved(false);
+                    loan.setNotes("No books matching isbn: " + isbn + " are available.");
+                }
+                return loan;
+            }
+        }.transact();
+    }
+
+    public boolean returnLoan(Loan loan) {
+        return new LibraryTransaction<Boolean>(entityManager) {
+            @Override
+            public Boolean call() throws Exception {
+                boolean returned = false;
+                if (loan != null) {
+                    Book book = loan.getBook();
+                    if (book != null) {
+                        book = em().find(Book.class, book.getId());
+                        if (book != null) {
+                            book.setAvailable(true);
+                            em().merge(book);
+                            returned = true;
+                        }
+                    }
+                }
+                return returned;
+            }
+        }.transact();
     }
 
 }

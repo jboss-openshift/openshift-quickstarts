@@ -71,4 +71,9 @@ public class ReturnRequest implements Serializable {
         this.loan = value;
     }
 
+    @Override
+    public String toString() {
+        return "ReturnRequest [loan=" + loan + "]";
+    }
+
 }

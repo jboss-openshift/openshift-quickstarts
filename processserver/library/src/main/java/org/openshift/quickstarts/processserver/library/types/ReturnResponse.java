@@ -61,4 +61,9 @@ public class ReturnResponse implements Serializable {
         this.acknowledged = value;
     }
 
+    @Override
+    public String toString() {
+        return "ReturnResponse [acknowledged=" + acknowledged + "]";
+    }
+
 }

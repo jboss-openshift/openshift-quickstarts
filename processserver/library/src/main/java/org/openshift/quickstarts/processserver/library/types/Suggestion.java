@@ -69,4 +69,9 @@ public class Suggestion implements Serializable {
         this.book = value;
     }
 
+    @Override
+    public String toString() {
+        return "Suggestion [book=" + book + "]";
+    }
+
 }

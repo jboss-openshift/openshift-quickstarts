@@ -132,4 +132,9 @@ public class Loan implements Serializable {
         this.book = value;
     }
 
+    @Override
+    public String toString() {
+        return "Loan [id=" + id + ", approved=" + approved + ", notes=" + notes + ", book=" + book + "]";
+    }
+
 }

@@ -37,7 +37,7 @@
       <bpmn2:outgoing>SequenceFlow_7</bpmn2:outgoing>
       <bpmn2:script>System.out.println(&quot;Attempting Loan...&quot;);
 String isbn = loanRequest.getIsbn();
-Loan loan = Library.library().attemptLoan(isbn, kcontext.getProcessInstance().getId());
+Loan loan = Library.library().init(kcontext).attemptLoan(isbn, kcontext.getProcessInstance().getId());
 loanResponse = new LoanResponse();
 loanResponse.setLoan(loan);
 kcontext.setVariable(&quot;loanResponse&quot;, loanResponse);
@@ -82,7 +82,7 @@ System.out.println(&quot;Loan approved? &quot; + loan.isApproved());</bpmn2:scri
       <bpmn2:outgoing>SequenceFlow_23</bpmn2:outgoing>
       <bpmn2:script>System.out.println(&quot;Returning Loan...&quot;);
 Loan loan = returnRequest.getLoan();
-boolean acknowledged = Library.library().returnLoan(loan);
+boolean acknowledged = Library.library().init(kcontext).returnLoan(loan);
 returnResponse = new ReturnResponse();
 returnResponse.setAcknowledged(acknowledged);
 kcontext.setVariable(&quot;returnResponse&quot;, returnResponse);

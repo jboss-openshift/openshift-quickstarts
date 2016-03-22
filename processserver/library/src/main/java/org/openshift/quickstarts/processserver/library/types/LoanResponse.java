@@ -71,4 +71,9 @@ public class LoanResponse implements Serializable {
         this.loan = value;
     }
 
+    @Override
+    public String toString() {
+        return "LoanResponse [loan=" + loan + "]";
+    }
+
 }

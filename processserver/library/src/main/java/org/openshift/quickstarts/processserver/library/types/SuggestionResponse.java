@@ -71,4 +71,9 @@ public class SuggestionResponse implements Serializable {
         this.suggestion = value;
     }
 
+    @Override
+    public String toString() {
+        return "SuggestionResponse [suggestion=" + suggestion + "]";
+    }
+
 }

@@ -10,6 +10,11 @@ package org.openshift.quickstarts.processserver.library.types;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
@@ -25,9 +30,11 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
+ *         &lt;element name="id" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="isbn" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="title" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="synopsis" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="available" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -39,23 +46,54 @@ import javax.xml.bind.annotation.XmlType;
 @SuppressWarnings("serial")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "book", namespace = "urn:openshift-quickstarts:processserver-library:1.3", propOrder = {
+    "id",
     "isbn",
     "title",
-    "synopsis"
+    "synopsis",
+    "available"
 })
+@Entity
+@Table(name="book")
 public class Book implements Serializable {
 
+    @Id
+    @Column(name="book_id")
+    @GeneratedValue
+    protected long id;
+    @Column
     protected String isbn;
+    @Column
     protected String title;
+    @Column
     protected String synopsis;
+    @Column
+    protected boolean available;
+
+    public Book() {}
+
+    public Book(String isbn, String title, String synopsis) {
+        setIsbn(isbn);
+        setTitle(title);
+        setSynopsis(synopsis);
+        setAvailable(true);
+    }
+
+    /**
+     * Gets the value of the id property.
+     */
+    public long getId() {
+        return id;
+    }
+
+    /**
+     * Sets the value of the id property.
+     */
+    public void setId(long value) {
+        this.id = value;
+    }
 
     /**
      * Gets the value of the isbn property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
      */
     public String getIsbn() {
         return isbn;
@@ -63,11 +101,6 @@ public class Book implements Serializable {
 
     /**
      * Sets the value of the isbn property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
      */
     public void setIsbn(String value) {
         this.isbn = value;
@@ -75,11 +108,6 @@ public class Book implements Serializable {
 
     /**
      * Gets the value of the title property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
      */
     public String getTitle() {
         return title;
@@ -87,11 +115,6 @@ public class Book implements Serializable {
 
     /**
      * Sets the value of the title property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
      */
     public void setTitle(String value) {
         this.title = value;
@@ -99,11 +122,6 @@ public class Book implements Serializable {
 
     /**
      * Gets the value of the synopsis property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
      */
     public String getSynopsis() {
         return synopsis;
@@ -111,14 +129,31 @@ public class Book implements Serializable {
 
     /**
      * Sets the value of the synopsis property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
      */
     public void setSynopsis(String value) {
         this.synopsis = value;
+    }
+
+    /**
+     * Gets the value of the available property.
+     * 
+     */
+    public boolean isAvailable() {
+        return available;
+    }
+
+    /**
+     * Sets the value of the available property.
+     * 
+     */
+    public void setAvailable(boolean value) {
+        this.available = value;
+    }
+
+    @Override
+    public String toString() {
+        return "Book [id=" + id + ", isbn=" + isbn + ", title=" + title + ", synopsis=" + synopsis + ", available="
+ + available + "]";
     }
 
 }
