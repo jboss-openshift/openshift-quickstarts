@@ -8,10 +8,8 @@ import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
@@ -34,8 +32,6 @@ import org.kie.api.runtime.StatelessKieSession;
 import org.kie.api.runtime.rule.QueryResults;
 import org.kie.api.runtime.rule.QueryResultsRow;
 import org.kie.remote.common.rest.KieRemoteHttpRequest;
-import org.kie.server.api.marshalling.Marshaller;
-import org.kie.server.api.marshalling.MarshallerFactory;
 import org.kie.server.api.marshalling.MarshallingFormat;
 import org.kie.server.api.model.ServiceResponse;
 import org.kie.server.client.KieServicesConfiguration;
@@ -144,13 +140,9 @@ public class HelloRulesClient {
         config.setMarshallingFormat(MarshallingFormat.XSTREAM);
         RuleServicesClient client = KieServicesFactory.newKieServicesClient(config).getServicesClient(RuleServicesClient.class);
         BatchExecutionCommand batch = createBatch();
-        ServiceResponse<String> response = client.executeCommands("HelloRulesContainer", batch);
-        logger.info(String.valueOf(response));
-        Set<Class<?>> classes = new HashSet<Class<?>>();
-        classes.add(Person.class);
-        classes.add(Greeting.class);
-        Marshaller marshaller = MarshallerFactory.getMarshaller(classes, config.getMarshallingFormat(), Person.class.getClassLoader());
-        ExecutionResults execResults = marshaller.unmarshall(response.getResult(), ExecutionResults.class);
+        ServiceResponse<ExecutionResults> response = client.executeCommandsWithResults("HelloRulesContainer", batch);
+        //logger.info(String.valueOf(response));
+        ExecutionResults execResults = response.getResult();
         handleResults(callback, execResults);
     }
 

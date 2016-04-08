@@ -249,9 +249,9 @@ public class LibraryClient {
         if (appcfg.getKieSession() != null) {
             execResults = appcfg.getKieSession().execute(batch);
         } else {
-            ServiceResponse<String> serviceResponse = appcfg.getRuleServicesClient().executeCommands("LibraryContainer", batch);
+            ServiceResponse<ExecutionResults> serviceResponse = appcfg.getRuleServicesClient().executeCommandsWithResults("LibraryContainer", batch);
             //logger.info(String.valueOf(serviceResponse));
-            execResults = appcfg.getMarshaller().unmarshall(serviceResponse.getResult(), ExecutionResults.class);
+            execResults = serviceResponse.getResult();
         }
         QueryResults queryResults = (QueryResults)execResults.getValue("suggestion");
         if (queryResults != null) {
