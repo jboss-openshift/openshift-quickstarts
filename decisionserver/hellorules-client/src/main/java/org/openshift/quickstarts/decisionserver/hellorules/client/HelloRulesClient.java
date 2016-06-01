@@ -140,7 +140,7 @@ public class HelloRulesClient {
         config.setMarshallingFormat(MarshallingFormat.XSTREAM);
         RuleServicesClient client = KieServicesFactory.newKieServicesClient(config).getServicesClient(RuleServicesClient.class);
         BatchExecutionCommand batch = createBatch();
-        ServiceResponse<ExecutionResults> response = client.executeCommandsWithResults("HelloRulesContainer", batch);
+        ServiceResponse<ExecutionResults> response = client.executeCommandsWithResults("decisionserver-hellorules", batch);
         //logger.info(String.valueOf(response));
         ExecutionResults execResults = response.getResult();
         handleResults(callback, execResults);

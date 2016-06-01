@@ -249,7 +249,7 @@ public class LibraryClient {
         if (appcfg.getKieSession() != null) {
             execResults = appcfg.getKieSession().execute(batch);
         } else {
-            ServiceResponse<ExecutionResults> serviceResponse = appcfg.getRuleServicesClient().executeCommandsWithResults("LibraryContainer", batch);
+            ServiceResponse<ExecutionResults> serviceResponse = appcfg.getRuleServicesClient().executeCommandsWithResults("processserver-library", batch);
             //logger.info(String.valueOf(serviceResponse));
             execResults = serviceResponse.getResult();
         }
@@ -277,8 +277,8 @@ public class LibraryClient {
             loanResponse = (LoanResponse)procinst.getVariable("loanResponse");
         } else {
             ProcessServicesClient procserv = appcfg.getProcessServicesClient();
-            Long pid = procserv.startProcess("LibraryContainer", "LibraryProcess", parameters);
-            loanResponse = (LoanResponse)procserv.getProcessInstanceVariable("LibraryContainer", pid, "loanResponse");
+            Long pid = procserv.startProcess("processserver-library", "LibraryProcess", parameters);
+            loanResponse = (LoanResponse)procserv.getProcessInstanceVariable("processserver-library", pid, "loanResponse");
         }
         return loanResponse != null ? loanResponse.getLoan() : null;
     }
@@ -294,8 +294,8 @@ public class LibraryClient {
             returnResponse = (ReturnResponse)procinst.getVariable("returnResponse");
         } else {
             ProcessServicesClient procserv = appcfg.getProcessServicesClient();
-            procserv.signalProcessInstance("LibraryContainer", loan.getId(), "ReturnSignal", returnRequest);
-            //returnResponse = (ReturnResponse)procserv.getProcessInstanceVariable("LibraryContainer", loan.getId(), "returnResponse");
+            procserv.signalProcessInstance("processserver-library", loan.getId(), "ReturnSignal", returnRequest);
+            //returnResponse = (ReturnResponse)procserv.getProcessInstanceVariable("processserver-library", loan.getId(), "returnResponse");
             returnResponse = new ReturnResponse();
             returnResponse.setAcknowledged(true);
         }
