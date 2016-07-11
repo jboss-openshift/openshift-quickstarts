@@ -1,7 +1,7 @@
 package org.openshift.quickstarts.processserver.library.client;
 
-import org.kie.server.api.marshalling.Marshaller;
 import org.kie.api.runtime.KieSession;
+import org.kie.server.api.marshalling.MarshallingFormat;
 import org.kie.server.client.ProcessServicesClient;
 import org.kie.server.client.RuleServicesClient;
 import org.slf4j.Logger;
@@ -14,7 +14,7 @@ public class LibraryConfig {
     private KieSession kieSession;
     private RuleServicesClient ruleServicesClient;
     private ProcessServicesClient processServicesClient;
-    private Marshaller marshaller;
+    private MarshallingFormat marshallingFormat;
     private String protocol;
     private String host;
     private String port;
@@ -50,12 +50,20 @@ public class LibraryConfig {
         this.processServicesClient = processServicesClient;
     }
 
-    public Marshaller getMarshaller() {
-        return marshaller;
+    public MarshallingFormat getMarshallingFormat() {
+        if (marshallingFormat == null) {
+            // can use xstream, xml (jaxb), or json
+            String type = System.getProperty("MarshallingFormat", "xstream");
+            if (type.trim().equalsIgnoreCase("jaxb")) {
+                type = "xml";
+            }
+            marshallingFormat = MarshallingFormat.fromType(type);
+        }
+        return marshallingFormat;
     }
 
-    public void setMarshaller(Marshaller marshaller) {
-        this.marshaller = marshaller;
+    public void setMarshallingFormat(MarshallingFormat marshallingFormat) {
+        this.marshallingFormat = marshallingFormat;
     }
 
     public String getProtocol(String defaultProtocol) {

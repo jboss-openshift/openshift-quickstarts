@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
@@ -35,11 +34,33 @@ public final class Library {
         return INSTANCE;
     }
 
-    private EntityManager entityManager = null;
+    private EntityManagerFactory emf = null;
 
+    private static final class Init extends LibraryTransaction<Object> {
+        private Init(EntityManagerFactory emf) {
+            super(emf);
+        }
+        @Override
+        public Object call() throws Exception {
+            Query query = em().createQuery("select count(b) from Book b");
+            Long result = (Long)query.getSingleResult();
+            if (result.intValue() == 0) {
+                for (Object[] b : INIT) {
+                    String isbn = (String)b[0];
+                    String title = (String)b[1];
+                    String synopsis = (String)b[2];
+                    Integer quantity = (Integer)b[3];
+                    for (int i=0; i < quantity; i++) {
+                        Book book = new Book(isbn, title, synopsis);
+                        em().persist(book);
+                    }
+                }
+            }
+            return null;
+        }
+    }
     public synchronized Library init(KieContext kcontext) {
-        if (entityManager == null) {
-            EntityManagerFactory emf;
+        if (emf == null) {
             final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
             try {
                 // https://issues.jboss.org/browse/DROOLS-1108
@@ -49,102 +70,102 @@ public final class Library {
             } finally {
                 Thread.currentThread().setContextClassLoader(tccl);
             }
-            entityManager = emf.createEntityManager();
-            new LibraryTransaction<Object>(entityManager) {
-                @Override
-                public Object call() throws Exception {
-                    Query query = em().createQuery("select count(b) from Book b");
-                    Long result = (Long)query.getSingleResult();
-                    if (result.intValue() == 0) {
-                        for (Object[] b : INIT) {
-                            String isbn = (String)b[0];
-                            String title = (String)b[1];
-                            String synopsis = (String)b[2];
-                            Integer quantity = (Integer)b[3];
-                            for (int i=0; i < quantity; i++) {
-                                Book book = new Book(isbn, title, synopsis);
-                                em().persist(book);
-                            }
-                        }
-                    }
-                    return null;
-                }
-            }.transact();
+            new Init(emf).transact();
         }
         return this;
     }
 
+    private static final class GetFirstAvailableBooks extends LibraryTransaction<Collection<Book>> {
+        private final String keyword;
+        private GetFirstAvailableBooks(EntityManagerFactory emf, String keyword) {
+            super(emf);
+            this.keyword = keyword;
+        }
+        @Override
+        public Collection<Book> call() throws Exception {
+            Collection<Book> books = new ArrayList<Book>();
+            Query query = em().createQuery("from Book b where b.available = true and ( b.title like :title or b.synopsis like :synopsis )");
+            String kw = "%" + keyword + "%";
+            query.setParameter("title", kw);
+            query.setParameter("synopsis", kw);
+            List<?> results = query.getResultList();
+            Set<String> isbns = new HashSet<String>();
+            for (Object result : results) {
+                Book book = (Book)result;
+                if (!isbns.contains(book.getIsbn())) {
+                    isbns.add(book.getIsbn());
+                    books.add(book);
+                }
+            }
+            return books;
+        }
+    }
     public Collection<Book> getFirstAvailableBooks(final String keyword) {
-        return new LibraryTransaction<Collection<Book>>(entityManager) {
-            @Override
-            public Collection<Book> call() throws Exception {
-                Collection<Book> books = new ArrayList<Book>();
-                Query query = em().createQuery("from Book b where b.available = true and ( b.title like :title or b.synopsis like :synopsis )");
-                String kw = "%" + keyword + "%";
-                query.setParameter("title", kw);
-                query.setParameter("synopsis", kw);
-                List<?> results = query.getResultList();
-                Set<String> isbns = new HashSet<String>();
-                for (Object result : results) {
-                    Book book = (Book)result;
-                    if (!isbns.contains(book.getIsbn())) {
-                        isbns.add(book.getIsbn());
-                        books.add(book);
-                    }
-                }
-                return books;
-            }
-        }.transact();
+        return new GetFirstAvailableBooks(emf, keyword).transact();
     }
 
+    private static final class AttemptLoan extends LibraryTransaction<Loan> {
+        final String isbn;
+        final long loanId;
+        private AttemptLoan(EntityManagerFactory emf, String isbn, long loanId) {
+            super(emf);
+            this.isbn = isbn;
+            this.loanId = loanId;
+        }
+        @Override
+        public Loan call() throws Exception {
+            Loan loan = new Loan();
+            loan.setId(loanId);
+            Book book = null;
+            Query query = em().createQuery("from Book b where b.available = true and b.isbn = :isbn");
+            query.setParameter("isbn", isbn);
+            List<?> results = query.getResultList();
+            for (Object result : results) {
+                book = (Book)result;
+                break;
+            }
+            if (book != null) {
+                book.setAvailable(false);
+                em().merge(book);
+                loan.setApproved(true);
+                loan.setNotes("Happy reading! Remaining copies: " + (results.size() - 1));
+                loan.setBook(book);
+            } else {
+                loan.setApproved(false);
+                loan.setNotes("No books matching isbn: " + isbn + " are available.");
+            }
+            return loan;
+        }
+    }
     public Loan attemptLoan(String isbn, long loanId) {
-        return new LibraryTransaction<Loan>(entityManager) {
-            @Override
-            public Loan call() throws Exception {
-                Loan loan = new Loan();
-                loan.setId(loanId);
-                Book book = null;
-                Query query = em().createQuery("from Book b where b.available = true and b.isbn = :isbn");
-                query.setParameter("isbn", isbn);
-                List<?> results = query.getResultList();
-                for (Object result : results) {
-                    book = (Book)result;
-                    break;
-                }
-                if (book != null) {
-                    book.setAvailable(false);
-                    em().merge(book);
-                    loan.setApproved(true);
-                    loan.setNotes("Happy reading! Remaining copies: " + (results.size() - 1));
-                    loan.setBook(book);
-                } else {
-                    loan.setApproved(false);
-                    loan.setNotes("No books matching isbn: " + isbn + " are available.");
-                }
-                return loan;
-            }
-        }.transact();
+        return new AttemptLoan(emf, isbn, loanId).transact();
     }
 
-    public boolean returnLoan(Loan loan) {
-        return new LibraryTransaction<Boolean>(entityManager) {
-            @Override
-            public Boolean call() throws Exception {
-                boolean returned = false;
-                if (loan != null) {
-                    Book book = loan.getBook();
+    public static final class ReturnLoan extends LibraryTransaction<Boolean> {
+        private final Loan loan;
+        private ReturnLoan(EntityManagerFactory emf, Loan loan) {
+            super(emf);
+            this.loan = loan;
+        }
+        @Override
+        public Boolean call() throws Exception {
+            boolean returned = false;
+            if (loan != null) {
+                Book book = loan.getBook();
+                if (book != null) {
+                    book = em().find(Book.class, book.getId());
                     if (book != null) {
-                        book = em().find(Book.class, book.getId());
-                        if (book != null) {
-                            book.setAvailable(true);
-                            em().merge(book);
-                            returned = true;
-                        }
+                        book.setAvailable(true);
+                        em().merge(book);
+                        returned = true;
                     }
                 }
-                return returned;
             }
-        }.transact();
+            return returned;
+        }
+    }
+    public boolean returnLoan(Loan loan) {
+        return new ReturnLoan(emf, loan).transact();
     }
 
 }

@@ -4,12 +4,17 @@ import java.util.concurrent.Callable;
 
 import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
 public abstract class LibraryTransaction<T> implements Callable<T> {
 
     private final EntityManager em;
+
+    LibraryTransaction(EntityManagerFactory emf) {
+        this.em = emf.createEntityManager();
+    }
 
     LibraryTransaction(EntityManager em) {
         this.em = em;

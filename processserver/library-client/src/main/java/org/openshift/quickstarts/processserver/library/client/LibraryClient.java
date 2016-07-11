@@ -37,8 +37,6 @@ import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.api.runtime.rule.QueryResults;
 import org.kie.api.runtime.rule.QueryResultsRow;
 import org.kie.remote.common.rest.KieRemoteHttpRequest;
-import org.kie.server.api.marshalling.Marshaller;
-import org.kie.server.api.marshalling.MarshallerFactory;
 import org.kie.server.api.marshalling.MarshallingFormat;
 import org.kie.server.api.model.ServiceResponse;
 import org.kie.server.client.KieServicesClient;
@@ -101,7 +99,7 @@ public class LibraryClient {
         appcfg.setKieSession(KieServices.Factory.get().getKieClasspathContainer().newKieSession());
         appcfg.setRuleServicesClient(null);
         appcfg.setProcessServicesClient(null);
-        appcfg.setMarshaller(null);
+        appcfg.setMarshallingFormat(null);
         runApp(out);
     }
 
@@ -156,26 +154,27 @@ public class LibraryClient {
 
     private void runRemote(PrintWriter out, KieServicesConfiguration kiecfg) throws Exception {
         appcfg.setKieSession(null);
-        Set<Class<?>> classes = new HashSet<Class<?>>();
-        classes.add(Book.class);
-        classes.add(Loan.class);
-        classes.add(LoanRequest.class);
-        classes.add(LoanResponse.class);
-        classes.add(ReturnRequest.class);
-        classes.add(ReturnResponse.class);
-        classes.add(Suggestion.class);
-        classes.add(SuggestionRequest.class);
-        classes.add(SuggestionResponse.class);
-        kiecfg.setMarshallingFormat(MarshallingFormat.XSTREAM);
-        //kiecfg.setMarshallingFormat(MarshallingFormat.JAXB);
-        //kiecfg.addJaxbClasses(classes);
+        MarshallingFormat marshallingFormat = appcfg.getMarshallingFormat();
+        out.println(String.format("Using %s MarshallingFormat.%s", marshallingFormat.getType(), marshallingFormat.name()));
+        kiecfg.setMarshallingFormat(marshallingFormat);
+        if (MarshallingFormat.JAXB.equals(marshallingFormat)) {
+            Set<Class<?>> classes = new HashSet<Class<?>>();
+            classes.add(Book.class);
+            classes.add(Loan.class);
+            classes.add(LoanRequest.class);
+            classes.add(LoanResponse.class);
+            classes.add(ReturnRequest.class);
+            classes.add(ReturnResponse.class);
+            classes.add(Suggestion.class);
+            classes.add(SuggestionRequest.class);
+            classes.add(SuggestionResponse.class);
+            kiecfg.addJaxbClasses(classes);
+        }
         KieServicesClient kieServicesClient = KieServicesFactory.newKieServicesClient(kiecfg);
         RuleServicesClient ruleServicesClient = kieServicesClient.getServicesClient(RuleServicesClient.class);
         ProcessServicesClient processServicesClient = kieServicesClient.getServicesClient(ProcessServicesClient.class);
         appcfg.setRuleServicesClient(ruleServicesClient);
         appcfg.setProcessServicesClient(processServicesClient);
-        Marshaller marshaller = MarshallerFactory.getMarshaller(classes, kiecfg.getMarshallingFormat(), Book.class.getClassLoader());
-        appcfg.setMarshaller(marshaller);
         runApp(out);
     }
 

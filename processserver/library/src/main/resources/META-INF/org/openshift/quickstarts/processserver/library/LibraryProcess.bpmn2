@@ -10,6 +10,7 @@
   <bpmn2:signal id="Signal_1" name="ReturnSignal"/>
   <bpmn2:process id="LibraryProcess" tns:version="1" tns:packageName="org.openshift.quickstarts.processserver.library" tns:adHoc="false" name="LibraryProcess" isExecutable="true" processType="Private">
     <bpmn2:extensionElements>
+      <tns:import name="java.lang.Boolean"/>
       <tns:import name="org.openshift.quickstarts.processserver.library.Library"/>
       <tns:import name="org.openshift.quickstarts.processserver.library.types.Book"/>
       <tns:import name="org.openshift.quickstarts.processserver.library.types.Loan"/>
@@ -82,7 +83,7 @@ System.out.println(&quot;Loan approved? &quot; + loan.isApproved());</bpmn2:scri
       <bpmn2:outgoing>SequenceFlow_23</bpmn2:outgoing>
       <bpmn2:script>System.out.println(&quot;Returning Loan...&quot;);
 Loan loan = returnRequest.getLoan();
-boolean acknowledged = Library.library().init(kcontext).returnLoan(loan);
+Boolean acknowledged = Library.library().init(kcontext).returnLoan(loan);
 returnResponse = new ReturnResponse();
 returnResponse.setAcknowledged(acknowledged);
 kcontext.setVariable(&quot;returnResponse&quot;, returnResponse);

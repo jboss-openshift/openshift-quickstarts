@@ -8,8 +8,10 @@ import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
@@ -137,7 +139,14 @@ public class HelloRulesClient {
     }
 
     private void runRemote(HelloRulesCallback callback, KieServicesConfiguration config) {
-        config.setMarshallingFormat(MarshallingFormat.XSTREAM);
+        MarshallingFormat marshallingFormat = getMarshallingFormat();
+        config.setMarshallingFormat(marshallingFormat);
+        if (MarshallingFormat.JAXB.equals(marshallingFormat)) {
+            Set<Class<?>> classes = new HashSet<Class<?>>();
+            classes.add(Greeting.class);
+            classes.add(Person.class);
+            config.addJaxbClasses(classes);
+        }
         RuleServicesClient client = KieServicesFactory.newKieServicesClient(config).getServicesClient(RuleServicesClient.class);
         BatchExecutionCommand batch = createBatch();
         ServiceResponse<ExecutionResults> response = client.executeCommandsWithResults("decisionserver-hellorules", batch);
@@ -225,6 +234,17 @@ public class HelloRulesClient {
         }
         logger.debug("---------> qpassword: " + qpassword);
         return qpassword;
+    }
+
+    private MarshallingFormat getMarshallingFormat() {
+        // can use xstream, xml (jaxb), or json
+        String type = System.getProperty("MarshallingFormat", "xstream");
+        if (type.trim().equalsIgnoreCase("jaxb")) {
+            type = "xml";
+        }
+        MarshallingFormat marshallingFormat = MarshallingFormat.fromType(type);
+        logger.debug(String.format("--------->  %s MarshallingFormat.%s", marshallingFormat.getType(), marshallingFormat.name()));
+        return marshallingFormat;
     }
 
     private String trimToNull(String str) {
