@@ -3,10 +3,16 @@ This only differs from the stock Teiid dynamicvdb-datafederation quickstart in t
 * customer-schema.sql has been modified to work with Derby
 * vdb/portfolio-vdb.xml has been modified to work with Derby
 * vdb/deployments/accounts-db.jar is a read-only version of the accounts DB
-* datasources provides configuration information for datasources and resource adapters required by this quickstart
-** ACCOUNTS is the accounts database
-** MARKETDATA represents market data files
-** EXCEL represents the excel files
+* datasources.env provides configuration information for the datasource required by this quickstart
+    * ACCOUNTS is the accounts database
+* resourceadapters.env provides configuration information for the resource adapters required by this quickstart
+    * MARKETDATA represents market data files
+    * EXCEL represents the excel files
+
+The configuration details are passed to the pod through a secret.  To create the secret for the configuration details:
+```
+$ oc secrets new jdv-app-config datasources.env resourceadapters.env
+```
 
 The file data can be mounted into the deployment as follows:
 
