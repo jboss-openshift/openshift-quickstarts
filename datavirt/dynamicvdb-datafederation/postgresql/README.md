@@ -49,7 +49,7 @@ The username and password parameters match what is defined in `datasources.env` 
 You will also need to configure the database to support XA transactions.  To do this, you will need to set `max_prepared_transactions` to a non-zero value.  This can be accomplished by executing the following command:
 
 ```
-$ oc env dc/accounts POSTGRESQL\_MAX\_PREPARED\_TRANSACTIONS=10
+$ oc env dc/accounts POSTGRESQL_MAX_PREPARED_TRANSACTIONS=10
 ```
 
 Once the database is up and running, the tables and seed data can be installed by invoking the following:
