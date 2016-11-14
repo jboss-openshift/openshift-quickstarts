@@ -20,7 +20,7 @@ public class DataAccessException extends RuntimeException {
         super(cause);
     }
 
-    public DataAccessException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
+    //public DataAccessException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    //    super(message, cause, enableSuppression, writableStackTrace);
+    //}
 }
