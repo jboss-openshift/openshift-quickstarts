@@ -1,36 +1,33 @@
-This only differs from the stock Teiid dynamicvdb-datafederation quickstart in the following ways:
+##Overview
 
-* customer-schema.sql has been modified to work with Derby
-* vdb/portfolio-vdb.xml has been modified to work with Derby
-* vdb/deployments/accounts-db.jar is a read-only version of the accounts DB
-* datasources.env provides configuration information for the datasource required by this quickstart
-    * ACCOUNTS is the accounts database
-* resourceadapters.env provides configuration information for the resource adapters required by this quickstart
-    * MARKETDATA represents market data files
-    * EXCEL represents the excel files
+This directory contains details specific to using this quickstart with a Derby database.  It contains the [customer-schema.sql](./customer-schema.sql) file which includes the DDL and some seed data, along with this readme.
 
-The configuration details are passed to the pod through a secret.  To create the secret for the configuration details:
-```
-$ oc secrets new datavirt-app-config datasources.env resourceadapters.env
-```
+##Initializing the Database
 
-The file data can be mounted into the deployment as follows:
+No extra steps are required to initialize the database as it is injected into the image during the s2i build (from [../app/data/databases/derby](../app/data/databases/derby)).
 
-For the market data:
-```
-$ oc secrets new datavirt-app-data teiid/teiid-quickstarts/dynamicvdb-datafederation/src/teiidfiles/data
-$ oc volume dc/datavirt-app --add --name=data --mount-path=/teiidfiles/data --type=secret --secret-name=datavirt-app-data
-```
+##Running the QuickStart
 
-For the excel files:
-```
-$ oc secrets new datavirt-app-excel-files teiid/teiid-quickstarts/dynamicvdb-datafederation/src/teiidfiles/excelFiles
-$ oc volume dc/datavirt-app --add --name=excel-files --mount-path=/teiidfiles/excel-files --type=secret --secret-name=datavirt-app-excel-files
-```
+The Derby quickstart requires the Derby JDBC driver to be installed in the JDV image.  This is accomplished by creating a image that contains the driver, as well as an installation script, which adds the driver configuration to the JDV configuration.  An example of a Derby driver image can be found [here](../../derby-driver-image).
 
-If a service account is associated with the deployment (e.g. `datavirt-service-account`), you will need to add the data file secrets to the service account, e.g.: (links secrets defined above to the service account)
-```
-$ oc secrets link datavirt-service-account datavirt-app-data datavirt-app-excel-files
-```
+The `datavirt63-extensions-support-s2i` template provides support for building the driver extension and integrating it into the JDV s2i process.  This template should be instantiated with the following parameter settings:
 
-Note: using secrets is not an ideal way to manage file datasources, but is used here for simplicity, as it saves having to work with "real" volumes.
+* `SOURCE_REPOSITORY_URL`: https://github.com/jboss-openshift/openshift-quickstarts
+* `SOURCE_REPOSITORY_REF`: master
+* `CONTEXT_DIR`: datavirt/dynamicvdb-datafederation/app
+* `EXTENSIONS_REPOSITORY_URL`: https://github.com/jboss-openshift/openshift-quickstarts
+* `EXTENSIONS_REPOSITORY_REF`: master
+* `EXTENSIONS_DIR`: datavirt/derby-driver-image
+
+Remember to note the Teiid username and password (both randomly generated), which should be displayed after processing the template.  Optionally, you can specify your own values:
+
+* `TEIID_USERNAME`: teiidUser
+* `TEIID_PASSWORD`: sup3rSecret!
+
+> Note: the password must adhere to the password strength rules or deployment will fail.
+
+Lastly, you must specify `derby` for the `QS_DB_TYPE` variable on the deployment configuration for the application, e.g.:
+
+```
+$ oc env dc/datavirt-app QS_DB_TYPE=derby
+```

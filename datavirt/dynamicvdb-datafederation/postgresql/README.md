@@ -1,50 +1,17 @@
 ##Overview
 
-This only differs from the stock Teiid dynamicvdb-datafederation quickstart in the following ways:
-
-* customer-schema.sql has been modified to work with PostgreSQL
-* vdb/portfolio-vdb.xml has been modified to work with PostgreSQL
-* datasources.env provides configuration information for the datasource and resource adapters required by this quickstart
-    * ACCOUNTS is the accounts database
-    * MARKETDATA represents market data files
-    * EXCEL represents the excel files
-
-The configuration details are passed to the pod through a secret.  To create the secret for the configuration details:
-```
-$ oc secrets new datavirt-app-config datasources.env
-```
-
-The file data can be mounted into the deployment as follows:
-
-For the market data:
-```
-$ oc secrets new datavirt-app-data teiid/teiid-quickstarts/dynamicvdb-datafederation/src/teiidfiles/data
-$ oc volume dc/datavirt-app --add --name=data --mount-path=/teiidfiles/data --type=secret --secret-name=datavirt-app-data
-```
-
-For the excel files:
-```
-$ oc secrets new datavirt-app-excel-files teiid/teiid-quickstarts/dynamicvdb-datafederation/src/teiidfiles/excelFiles
-$ oc volume dc/datavirt-app --add --name=excel-files --mount-path=/teiidfiles/excel-files --type=secret --secret-name=datavirt-app-excel-files
-```
-
-If a service account is associated with the deployment (e.g. `datavirt-service-account`), you will need to add the data file secrets to the service account, e.g.: (links secrets defined above to the service account)
-```
-$ oc secrets link datavirt-service-account datavirt-app-data datavirt-app-excel-files
-```
-
-Note: using secrets is not an ideal way to manage file datasources, but is used here for simplicity, as it saves having to work with "real" volumes.
+This directory contains details specific to using this quickstart with a PostgreSQL database.  It contains the [customer-schema.sql](./customer-schema.sql) file which includes the DDL and some seed data, along with this readme.
 
 ##Initializing the Database
 
 The PostgreSQL database can be setup by instantiating one of the PostgreSQL templates (e.g. `postgresql-ephemeral`) with the following parameters:
 
-* DATABASE\_SERVICE\_NAME=accounts
+* DATABASE\_SERVICE\_NAME=accounts-postgresql
 * POSTGRESQL\_USER=pguser
 * POSTGRESQL\_PASSWORD=pgpass
 * POSTGRESQL\_DATABASE=accounts
 
-The username and password parameters match what is defined in `datasources.env` (or you can modify the settings in this file to match what you're using for the DB).
+The username and password parameters match what is defined in [datasources.env](../datasources.env).  If you use a different user and/or password, you must modify the settings in this file to match what you're using for the DB.  After modifying the file, you will have to recreate the secret so the application can pick up the changes.  You may also have to trigger a new deployment or recreate the pod, as changes to secrets are not propagated to running pods.
 
 You will also need to configure the database to support XA transactions.  To do this, you will need to set `max_prepared_transactions` to a non-zero value.  This can be accomplished by executing the following command:
 
@@ -55,9 +22,17 @@ $ oc env dc/accounts POSTGRESQL_MAX_PREPARED_TRANSACTIONS=10
 Once the database is up and running, the tables and seed data can be installed by invoking the following:
 
 ```
-$ cat customer-schema.sql |  oc exec accounts-2-0at2i -i -- scl enable rh-postgresql95 -- psql -U pguser -d accounts
+$ cat customer-schema.sql |  oc exec accounts-postgresql-2-0at2i -i -- scl enable rh-postgresql95 -- psql -U pguser -d accounts
 ```
 
-> Note: replace `accounts-2-0at2i` with the pod name in your environment.
+> Note: replace `accounts-postgresql-2-0at2i` with the pod name from your environment.
 
-The above command simply pipes the SQL commands through to `psql` running inside the pod.  The `-i` option allows stdin to be forwarded to the executed command and the `scl` command is required so the `psql` command will resolve appropriately.
+The above command simply pipes the SQL commands through to `psql` running inside the pod.  The `-i` option allows stdin to be forwarded to the executed command and the `scl` command is required so the `psql` command will resolve appropriately (i.e. it _enables_ the _rh-postgresql95_ software collection).
+
+##Running the QuickStart
+
+Follow the instructions in the main [README](../README.md) and set `QS_DB_TYPE=postgresql`, e.g.:
+
+```
+$ oc env dc/datavirt-app QS_DB_TYPE=postgresql
+```
