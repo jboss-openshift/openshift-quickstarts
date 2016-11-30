@@ -35,7 +35,7 @@ public class JdbcTodoListDAO implements TodoListDAO {
                 return (DataSource) envContext.lookup(System.getenv("DB_JNDI"));
             }
         } catch (NamingException e) {
-            throw new RuntimeException("Could not look up datasource", e);
+            throw new DataAccessException("Could not look up datasource", e);
         }
     }
 
@@ -56,7 +56,7 @@ public class JdbcTodoListDAO implements TodoListDAO {
                 connection.close();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("could not initialize database schema", e);
         }
     }
 
@@ -88,7 +88,7 @@ public class JdbcTodoListDAO implements TodoListDAO {
                 connection.close();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Could not save entry " + entry, e);
         }
     }
 
@@ -102,29 +102,28 @@ public class JdbcTodoListDAO implements TodoListDAO {
             Connection connection = getConnection();
             try {
                 Statement statement = connection.createStatement();
-                List<TodoEntry> list;
                 try {
                     ResultSet rset = statement.executeQuery("SELECT id, summary, description FROM todo_entries");
                     try {
-                        list = new ArrayList<TodoEntry>();
+                        List<TodoEntry> list = new ArrayList<TodoEntry>();
                         while (rset.next()) {
                             Long id = rset.getLong(1);
                             String summary = rset.getString(2);
                             String description = rset.getString(3);
                             list.add(new TodoEntry(id, summary, description));
                         }
+                        return list;
                     } finally {
                         rset.close();
                     }
                 } finally {
                     statement.close();
                 }
-                return list;
             } finally {
                 connection.close();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Could not list entries", e);
         }
     }
 

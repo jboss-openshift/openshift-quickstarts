@@ -47,7 +47,6 @@ The only changes that have been made to this quickstart are:
 
 * datagrid.properties:
   * datagrid.host set to the hotrod service name: carcache-hotrod
-  * datagrid.hotrod.port set to the default hotrod port, 11222
 * pom.xml
   * added activation based on env variables to remote-jboss and remote-tomcat profiles
   * added openshift profile

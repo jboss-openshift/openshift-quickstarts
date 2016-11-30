@@ -34,8 +34,6 @@ import org.kie.api.runtime.StatelessKieSession;
 import org.kie.api.runtime.rule.QueryResults;
 import org.kie.api.runtime.rule.QueryResultsRow;
 import org.kie.remote.common.rest.KieRemoteHttpRequest;
-import org.kie.server.api.marshalling.Marshaller;
-import org.kie.server.api.marshalling.MarshallerFactory;
 import org.kie.server.api.marshalling.MarshallingFormat;
 import org.kie.server.api.model.ServiceResponse;
 import org.kie.server.client.KieServicesConfiguration;
@@ -141,16 +139,19 @@ public class HelloRulesClient {
     }
 
     private void runRemote(HelloRulesCallback callback, KieServicesConfiguration config) {
-        config.setMarshallingFormat(MarshallingFormat.XSTREAM);
+        MarshallingFormat marshallingFormat = getMarshallingFormat();
+        config.setMarshallingFormat(marshallingFormat);
+        if (MarshallingFormat.JAXB.equals(marshallingFormat)) {
+            Set<Class<?>> classes = new HashSet<Class<?>>();
+            classes.add(Greeting.class);
+            classes.add(Person.class);
+            config.addJaxbClasses(classes);
+        }
         RuleServicesClient client = KieServicesFactory.newKieServicesClient(config).getServicesClient(RuleServicesClient.class);
         BatchExecutionCommand batch = createBatch();
-        ServiceResponse<String> response = client.executeCommands("HelloRulesContainer", batch);
-        logger.info(String.valueOf(response));
-        Set<Class<?>> classes = new HashSet<Class<?>>();
-        classes.add(Person.class);
-        classes.add(Greeting.class);
-        Marshaller marshaller = MarshallerFactory.getMarshaller(classes, config.getMarshallingFormat(), Person.class.getClassLoader());
-        ExecutionResults execResults = marshaller.unmarshall(response.getResult(), ExecutionResults.class);
+        ServiceResponse<ExecutionResults> response = client.executeCommandsWithResults("decisionserver-hellorules", batch);
+        //logger.info(String.valueOf(response));
+        ExecutionResults execResults = response.getResult();
         handleResults(callback, execResults);
     }
 
@@ -233,6 +234,17 @@ public class HelloRulesClient {
         }
         logger.debug("---------> qpassword: " + qpassword);
         return qpassword;
+    }
+
+    private MarshallingFormat getMarshallingFormat() {
+        // can use xstream, xml (jaxb), or json
+        String type = System.getProperty("MarshallingFormat", "xstream");
+        if (type.trim().equalsIgnoreCase("jaxb")) {
+            type = "xml";
+        }
+        MarshallingFormat marshallingFormat = MarshallingFormat.fromType(type);
+        logger.debug(String.format("--------->  %s MarshallingFormat.%s", marshallingFormat.getType(), marshallingFormat.name()));
+        return marshallingFormat;
     }
 
     private String trimToNull(String str) {

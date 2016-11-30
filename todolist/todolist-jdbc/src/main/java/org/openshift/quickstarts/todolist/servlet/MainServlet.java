@@ -13,7 +13,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 /**
- *
+ * The MainServlet returns the to-do list html on GET requests and handles the
+ * creation of new to-do list entries on POST requests.
  */
 public class MainServlet extends HttpServlet {
 
@@ -23,8 +24,11 @@ public class MainServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/html; charset=UTF-8");
-        PrintWriter out = resp.getWriter();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(req.getServletContext().getResourceAsStream("/WEB-INF/index.html"), "UTF-8"));
+        writeHtml(resp.getWriter());
+    }
+
+    private void writeHtml(PrintWriter out) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(getServletContext().getResourceAsStream("/WEB-INF/index.html"), "UTF-8"));
         try {
             String line;
             boolean insideLoop = false;

@@ -44,14 +44,16 @@ public class HelloRulesServlet extends HttpServlet {
                 out.println("</em></p>");
                 out.println("<a href=\"/hellorules\">Back</a>");
             } else {
+                String hostname = System.getenv("HOSTNAME");
                 out.println("<em>Nothing run!</em><p>Must specify ?command=&lt;command&gt;<br/><ul>");
                 out.println("<li><a href=\"/hellorules?command=runLocal\">runLocal</a></li>");
                 out.println("<li><a href=\"/hellorules?command=runRemoteRest\">runRemoteRest</a></li>");
+                out.println("<li><a href=\"/hellorules?command=runRemoteRest&protocol=https&host=" + hostname + "&port=8443\">runRemoteRest (secure)</a></li>");
                 out.println("<li><a href=\"/hellorules?command=runRemoteHornetQ\">runRemoteHornetQ</a> (only works with HornetQ)</li>");
                 out.println("<li><a href=\"/hellorules?command=runRemoteActiveMQ&host=amqhost\">runRemoteActiveMQ</a> (only works with ActiveMQ; must change host parameter to the amq host)</li>");
                 out.println("</ul></p>");
                 out.println("Can also specify query parameters: protocol, host, port, username, password, qusername, qpassword.<p/>");
-                out.println("For example: /hellorules?command=runRemoteRest&amp;protocol=https&amp;host=kie-app-1-mumje&amp;port=8443 (if https is configured)");
+                out.println("For example: /hellorules?command=runRemoteRest&amp;protocol=https&amp;host=" + hostname + "&amp;port=8443 (if https is configured)");
             }
         } catch (Exception e) {
             out.println("<em>Oops!</em><p><font color=\"red\"><pre>");
