@@ -22,6 +22,7 @@
     <modules>
         <module>library</module>
         <module>library-client</module>
+        <module>timerprocess</module>
     </modules>
 
 </project>
