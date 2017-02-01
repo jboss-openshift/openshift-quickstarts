@@ -91,21 +91,6 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-vdb</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/..</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/vdb</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>copy-module-xml</id>
                         <phase>package</phase>
                         <goals>

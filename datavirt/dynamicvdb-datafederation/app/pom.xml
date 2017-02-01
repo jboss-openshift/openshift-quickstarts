@@ -13,7 +13,8 @@
         <profile>
             <activation>
                 <property>
-                    <name>env.DATAGRID_MATERIALIZATION</name>
+                    <name>env.VDB_DIRS</name>
+                    <value>.,datagrid-materialization/src/vdb</value>
                 </property>
             </activation>
             <modules>

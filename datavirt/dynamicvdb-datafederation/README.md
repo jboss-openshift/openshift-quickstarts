@@ -49,7 +49,7 @@ The datasources are configured using environment variables, which are defined th
 
 The `QS_DB_TYPE` variable is used to define which datasource configuration is used and can be one of (all lower case): `derby`, `h2`, `mysql5` or `postgresql`.  By default, this is set to `h2`, but may be changed by editing the deployment configuration for the application.  This must be defined as part of the deployment configuration within OpenShift to have any affect on the VDB.  Setting it in [datasources.env](./datasources.env) will affect the datasource that gets created, but the VDB will use the translator specified by the setting on the deployment configuration.  The [portfolio-vdb.xml](./app/portfolio-vdb.xml) file uses `${env.QS_DB_TYPE:h2}` to select the translator that should be used with the _Accounts_ model, and defaults to `h2`.
 
-The `DATAGRID_MATERIALIZATION` variable is used to enable the materialization aspect of this quickstart.  If this environment variable is set, the [datagrid-materialization](./app/datagrid-materialization) project will be built and included in the image.
+The `VDB_DIRS` variable is used to enable the materialization aspect of this quickstart.  If this environment variable is set with a value of ".,datagrid-materialization/src/vdb", the [datagrid-materialization](./app/datagrid-materialization) project will be built and included in the image.
 
 The configuration details are passed to the pod through a secret.
 
