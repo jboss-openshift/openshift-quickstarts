@@ -23,11 +23,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.openshift.quickstarts.undertow</groupId>
-    <artifactId>servlet</artifactId>
+    <artifactId>jdbc</artifactId>
     <version>1.0.0.Final</version>
 
-    <name>Undertow Servlet Example</name>
-    <description>Undertow Servlet Example for OpenShift Java S2I</description>
+    <name>Undertow JDBC Example</name>
+    <description>Undertow JDBC Example for OpenShift Java S2I</description>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -57,6 +57,18 @@
             <version>${version.jboss.logmanager}</version>
         </dependency>
 
+        <!-- Database drivers -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.41</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.4.1212</version>
+        </dependency>
+
     </dependencies>
 
     <profiles>
@@ -66,7 +78,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <build>
-                <finalName>undertow-servlet</finalName>
+                <finalName>undertow-jdbc</finalName>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -97,7 +109,7 @@
         <profile>
             <id>flat-classpath-jar</id>
             <build>
-                <finalName>undertow-servlet</finalName>
+                <finalName>undertow-jdbc</finalName>
                 <plugins>
                     <plugin>
                         <artifactId>maven-dependency-plugin</artifactId>

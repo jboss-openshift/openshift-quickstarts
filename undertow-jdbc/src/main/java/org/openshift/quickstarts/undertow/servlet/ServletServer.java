@@ -18,10 +18,6 @@
 
 package org.openshift.quickstarts.undertow.servlet;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -33,19 +29,21 @@ import static io.undertow.servlet.Servlets.defaultContainer;
 import static io.undertow.servlet.Servlets.deployment;
 import static io.undertow.servlet.Servlets.servlet;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.security.KeyStore;
-
 /**
- * @author Stuart Douglas
+ * @author Doug Palmer
  */
 public class ServletServer {
-
     public static final String MYAPP = "/";
 
     public static void main(final String[] args) {
+        String driver = System.getenv("DB_DRIVER");
+        String host = System.getenv("OPENJDK_APP_" + driver.toUpperCase() + "_SERVICE_HOST");
+        String port = System.getenv("OPENJDK_APP_" + driver.toUpperCase() + "_SERVICE_PORT");
+        String database = System.getenv("DB_DATABASE");
+        String username = System.getenv("DB_USERNAME");
+        String password = System.getenv("DB_PASSWORD");
+        String url = "jdbc:" + driver + "://" + host + ":" + port + "/" + database;
+
         try {
 
             DeploymentInfo servletBuilder = deployment()
@@ -53,59 +51,26 @@ public class ServletServer {
                     .setContextPath(MYAPP)
                     .setDeploymentName("test.war")
                     .addServlets(
-                            servlet("MessageServlet", MessageServlet.class)
-                                    .addInitParam("message", "Hello World")
-                                    .addMapping("/*"),
-                            servlet("MyServlet", MessageServlet.class)
-                                    .addInitParam("message", "MyServlet")
-                                    .addMapping("/myservlet"));
+                            servlet("PhoneBookServlet", PhoneBookServlet.class)
+                                    .addInitParam("url", url)
+                                    .addInitParam("driver", driver)
+                                    .addInitParam("username", username)
+                                    .addInitParam("password", password)
+                                    .addMapping("/*"));
 
             DeploymentManager manager = defaultContainer().addDeployment(servletBuilder);
             manager.deploy();
 
-            SSLContext sslContext = null;
-            String filename = System.getenv("HTTPS_KEYSTORE");
-            if (filename != null) {
-                String directory = System.getenv("HTTPS_KEYSTORE_DIR");
-                char[] password = System.getenv("HTTPS_PASSWORD").toCharArray();
-                File keystore = new File(directory, filename);
-            
-                sslContext = createSSLContext(loadKeyStore(keystore, password), password);
-            }
-            
             HttpHandler servletHandler = manager.start();
             PathHandler path = Handlers.path(Handlers.redirect(MYAPP))
                     .addPrefixPath(MYAPP, servletHandler);
             Undertow server = Undertow.builder()
                     .addHttpListener(8080, "0.0.0.0")
-                    .addHttpsListener(8443, "0.0.0.0", sslContext)
                     .setHandler(path)
                     .build();
             server.start();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-    
-    private static KeyStore loadKeyStore(File file, char[] password) throws Exception {
-        final InputStream stream = new FileInputStream(file);
-        try(InputStream is = stream) {
-            KeyStore loadedKeystore = KeyStore.getInstance("JKS");
-            loadedKeystore.load(is, password);
-            return loadedKeystore;
-        }
-    }
-
-    private static SSLContext createSSLContext(final KeyStore keyStore, final char[] password) throws Exception {
-        KeyManager[] keyManagers;
-        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        keyManagerFactory.init(keyStore, password);
-        keyManagers = keyManagerFactory.getKeyManagers();
-
-        SSLContext sslContext;
-        sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(keyManagers, null, null);
-
-        return sslContext;
     }
 }
