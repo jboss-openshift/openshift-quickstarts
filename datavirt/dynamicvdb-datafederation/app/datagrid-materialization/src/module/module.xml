@@ -6,8 +6,8 @@
     </resources>
 
     <dependencies>
-        <module name="org.infinispan.client.hotrod" slot="jdg-6.6" optional="true" services="export"/>
-   	<module name="org.infinispan.protostream" slot="jdg-6.6"  optional="true" services="export"/>
+        <module name="org.infinispan.client.hotrod" slot="jdg-6.5" optional="true" services="export"/>
+   	<module name="org.infinispan.protostream" slot="jdg-6.5"  optional="true" services="export"/>
 
         <module name="org.jboss.teiid.resource-adapter.infinispan.dsl" export="true" />
     </dependencies>
