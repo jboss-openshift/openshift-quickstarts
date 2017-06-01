@@ -5,7 +5,7 @@
 
     <groupId>org.openshift.quickstarts</groupId>
     <artifactId>processserver-library</artifactId>
-    <version>1.3.0.Final</version>
+    <version>1.4.0.Final</version>
     <packaging>jar</packaging>
 
     <name>OpenShift Quickstarts: Intelligent Process Server: Library</name>
@@ -26,6 +26,7 @@
         <!-- maven-compiler-plugin -->
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
+        <org.kie.version>6.5.0.Final-redhat-7</org.kie.version>
     </properties>
 
     <dependencies>
@@ -33,13 +34,13 @@
             <groupId>org.drools</groupId>
             <artifactId>drools-core</artifactId>
             <scope>provided</scope>
-            <version>6.4.0.CR2</version>
+            <version>${org.kie.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kie</groupId>
             <artifactId>kie-api</artifactId>
             <scope>provided</scope>
-            <version>6.4.0.CR2</version>
+            <version>${org.kie.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate.javax.persistence</groupId>
@@ -57,33 +58,41 @@
 
     <repositories>
         <repository>
-            <id>jboss-public-repository-group</id>
-            <name>JBoss Public Repository Group</name>
-            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-            <layout>default</layout>
+            <id>redhat-ga-repository</id>
+            <url>http://maven.repository.redhat.com/ga/</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>never</updatePolicy>
             </releases>
             <snapshots>
-                <enabled>true</enabled>
+                <enabled>false</enabled>
                 <updatePolicy>never</updatePolicy>
             </snapshots>
         </repository>
         <repository>
-            <id>jboss-enterprise-repository-group</id>
-            <name>JBoss Enterprise Technology Preview Repository Group</name>
-            <url>http://maven.repository.redhat.com/techpreview/all/</url>
+            <id>redhat-ea-repository</id>
+            <url>http://maven.repository.redhat.com/earlyaccess/all/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <updatePolicy>never</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>redhat-tp-repository</id>
+            <url>http://maven.repository.redhat.com/techpreview/all</url>
             <layout>default</layout>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>never</updatePolicy>
             </releases>
             <snapshots>
-                <enabled>true</enabled>
+                <enabled>false</enabled>
                 <updatePolicy>never</updatePolicy>
             </snapshots>
         </repository>
     </repositories>
-
 </project>
