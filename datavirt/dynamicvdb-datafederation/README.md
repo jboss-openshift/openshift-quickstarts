@@ -1,4 +1,4 @@
-##Overview
+## Overview
 
 This only differs from the stock Teiid _dynamicvdb-datafederation_ quickstart in the following ways:
 
@@ -14,7 +14,7 @@ This only differs from the stock Teiid _dynamicvdb-datafederation_ quickstart in
     * The modules folder is created in the parent directory, so it gets copied automatically as part of the s2i process
     * The jdg-remote-cache-mat-vdb.xml file is copied into the parent directory, so it gets deployed automatically as part of the s2i process.
 
-###Directory Structure
+### Directory Structure
 
 The directory structure is organized as follows:
 
@@ -34,7 +34,7 @@ The directory structure is organized as follows:
 * [./postgresql/](./postgresql) - PostgreSQL specific DDL and instructions
 * [./datasources.env](./datasources.env) provides configuration information for the datasource and resource adapters required by this quickstart
 
-###Datasource Configuration
+### Datasource Configuration
 
 The datasources are configured using environment variables, which are defined through the [datasources.env](./datasources.env) file.
 * datasources: (`DATASOURCES` variable)
@@ -53,7 +53,7 @@ The `VDB_DIRS` variable is used to enable the materialization aspect of this qui
 
 The configuration details are passed to the pod through a secret.
 
-##Deploying the Quickstart
+## Deploying the Quickstart
 
 This quickstart can be deployed as follows:
 
