@@ -1,8 +1,8 @@
-##Overview
+## Overview
 
 This directory contains details specific to using this quickstart with a MySQL database.  It contains the [customer-schema.sql](./customer-schema.sql) file which includes the DDL and some seed data, along with this readme.
 
-##Initializing the Database
+## Initializing the Database
 
 The MySQL database can be setup by instantiating one of the MySQL templates (e.g. `mysql-ephemeral`) with the following parameters:
 
@@ -23,7 +23,7 @@ $ cat customer-schema.sql |  oc exec accounts-mysql5-1-22hwq -i -- scl enable rh
 
 The above command simply pipes the SQL commands through to `mysql` running inside the pod.  The `-i` option allows stdin to be forwarded to the executed command and the `scl` command is required so the `mysql` command will resolve appropriately (i.e. it _enables_ the _rh-mysql56_ software collection).
 
-##Running the QuickStart
+## Running the QuickStart
 
 Follow the instructions in the main [README](../README.md) and set `QS_DB_TYPE=mysql5`, e.g.:
 
