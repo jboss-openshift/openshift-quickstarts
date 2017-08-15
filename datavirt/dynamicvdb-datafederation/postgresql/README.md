@@ -1,8 +1,8 @@
-##Overview
+## Overview
 
 This directory contains details specific to using this quickstart with a PostgreSQL database.  It contains the [customer-schema.sql](./customer-schema.sql) file which includes the DDL and some seed data, along with this readme.
 
-##Initializing the Database
+## Initializing the Database
 
 The PostgreSQL database can be setup by instantiating one of the PostgreSQL templates (e.g. `postgresql-ephemeral`) with the following parameters:
 
@@ -29,7 +29,7 @@ $ cat customer-schema.sql |  oc exec accounts-postgresql-2-0at2i -i -- scl enabl
 
 The above command simply pipes the SQL commands through to `psql` running inside the pod.  The `-i` option allows stdin to be forwarded to the executed command and the `scl` command is required so the `psql` command will resolve appropriately (i.e. it _enables_ the _rh-postgresql95_ software collection).
 
-##Running the QuickStart
+## Running the QuickStart
 
 Follow the instructions in the main [README](../README.md) and set `QS_DB_TYPE=postgresql`, e.g.:
 
