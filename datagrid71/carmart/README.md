@@ -5,7 +5,7 @@ Level: Intermediate
 Technologies: Infinispan, CDI
 Summary: Shows how to use Infinispan instead of a relational database.
 Target Product: JDG
-Product Versions: EAP 6.x, JDG 6.x
+Product Versions: EAP 7.x, JDG 7.x
 Source: <https://github.com/infinispan/jdg-quickstart>
 
 What is it?

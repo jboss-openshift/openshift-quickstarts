@@ -11,10 +11,10 @@ JBoss Data Grid Configuration
 -----------------------------
 
 This quickstart requires a JBoss Data Grid instance to be running within your OpenShift
-project.  An instance can be created easily using the **datagrid65-basic** template.
+project.  An instance can be created easily using the **datagrid71-basic** template.
 
 In the OpenShift console, select a project and click *Add to Project*.  Select
-the *datagrid65-basic* template.  Set the following parameters as specified:
+the *datagrid71-basic* template.  Set the following parameters as specified:
 
 * `APPLICATION_NAME`: carcache
 * `INFINISPAN_CONNECTORS`: hotrod
@@ -28,14 +28,14 @@ Creating the Quickstart Application
 
 The Quickstart can be run on either JBoss EAP or JBoss Web Server.
 
-To create the application, select either the **eap64-basic-s2i**,
+To create the application, select either the **eap70-basic-s2i**, **eap71-basic-s2i**
 **jws30-tomcat7-basic-s2i**, or **jws30-tomcat8-basic-s2i** templates, depending
 on the environment you want to use.  Specify the following for the source
 configuration:
 
 * `SOURCE_REPOSITORY_URL`: https://github.com/jboss-openshift/openshift-quickstarts
-* `SOURCE_REPOSITORY_REF`: 1.2
-* `CONTEXT_DIR`: datagrid/carmart
+* `SOURCE_REPOSITORY_REF`: master
+* `CONTEXT_DIR`: datagrid71/carmart
 
 > Note, the `SOURCE_REPOSITORY_REF` is the branch used when building the
 > source.  Latest source is always available in the `master` branch.
