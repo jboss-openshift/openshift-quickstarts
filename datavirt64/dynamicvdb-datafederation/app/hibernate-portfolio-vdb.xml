@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<vdb name="Hibernate_Portfolio" version="1">
+
+    <description>This VDB is utilized by Hibernate on top</description>
+
+    <property name="UseConnectorMetadata" value="true" />
+    
+    <import-vdb name="Portfolio" version="1" import-data-policies="true"/>
+
+
+    <model name="ProductPricingModel" type="VIRTUAL">
+         <metadata type="DDL"><![CDATA[
+            CREATE VIEW ProductInfo (id integer OPTIONS(UPDATABLE 'TRUE'), symbol varchar(10) OPTIONS(UPDATABLE 'TRUE'), companyName varchar(100) OPTIONS(UPDATABLE 'TRUE'), price decimal OPTIONS(UPDATABLE 'FALSE') ) OPTIONS (UPDATABLE 'TRUE'  ) AS 
+select P.id, P.symbol, P.company_name, S.price from Accounts.product as P, (call MarketData.getTextFiles('*.txt')) f, TEXTTABLE(f.file COLUMNS symbol string, price bigdecimal HEADER) as S where P.symbol=S.symbol;
+ 
+ 			CREATE TRIGGER ON ProductInfo INSTEAD OF INSERT AS
+ 			   FOR EACH ROW
+ 			   BEGIN ATOMIC
+ 			      INSERT INTO Accounts.Product VALUES (NEW.id, NEW.symbol,NEW.companyName);
+ 			   END;
+        ]]> </metadata>
+    </model>   
+</vdb>
