@@ -8,7 +8,7 @@
 	<packaging>kjar</packaging>
 
 	<properties>
-		<drools.version>6.4.0.Final-redhat-6</drools.version>
+		<drools.version>7.5.0.Final</drools.version>
 	</properties>
 
 	<dependencies>
