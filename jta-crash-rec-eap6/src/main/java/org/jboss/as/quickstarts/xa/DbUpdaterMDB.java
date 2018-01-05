@@ -59,8 +59,8 @@ public class DbUpdaterMDB implements MessageListener {
 
                 // only process messages of the form key=value
                 if (kvPair.length == 2 && kvPair[0].length() != 0) {
-                    xaService.modifyKeyValueTable(false, kvPair[0], kvPair[1] + " updated via JMS");
-                    LOGGER.info("JTA Crash Record Quickstart: key value pair updated via JMS");
+                    xaService.modifyKeyValueTable(false, kvPair[0], kvPair[1] + " updated via JMS on " + System.getenv("HOSTNAME") + " host.");
+                    LOGGER.info("JTA Crash Record Quickstart: key value pair updated via JMS on " + System.getenv("HOSTNAME") + " host.");
                 }
             } else {
                 LOGGER.warning("JTA Crash Record Quickstart: Unexpected message. Type: " + rcvMessage.getClass().getName());
