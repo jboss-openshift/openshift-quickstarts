@@ -58,7 +58,7 @@
             }
 
             Chat.socket.onopen = function () {
-                Console.log('Info: WebSocket connection opened.');
+                Console.log('Info: WebSocket connection opened by Latheef.');
                 document.getElementById('chat').onkeydown = function(event) {
                     if (event.keyCode == 13) {
                         Chat.sendMessage();
@@ -68,7 +68,7 @@
 
             Chat.socket.onclose = function () {
                 document.getElementById('chat').onkeydown = null;
-                Console.log('Info: WebSocket closed.');
+                Console.log('Info: WebSocket closed by JBOSSSSSSSSSS.');
             };
 
             Chat.socket.onmessage = function (message) {
