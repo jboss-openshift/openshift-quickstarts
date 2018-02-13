@@ -19,15 +19,12 @@ This only differs from the stock Teiid _dynamicvdb-datafederation_ quickstart in
 The directory structure is organized as follows:
 
 * [./app/](./app) - everything that needs to be deployed to the server, which includes:
-    * `*-vdb.xml` - the VDB files
+    * `*-vdb.xml` - the VDB files that are based on the dynamicvdb-datafederation quickstart.
     * [data/databases/h2/](./app/data/databases/h2) - the h2 database instance
     * [data/databases/derby/](./app/data/databases/derby) - the Derby database instance
     * [data/teiidfiles/data/](./app/data/teiidfiles/data) - the file data for the `market-data` resource
     * [data/teiidfiles/excelFiles/](./app/data/teiidfiles/excelFiles) - the file data for the `excel-file` resource
-    * [datagrid-materialization/](./app/datagrid-materialization) - maven project which illustrates how to setup a materialized view using a Red Hat JBoss Data Grid cache as a target datasource.  This project builds a modules folder hierarchy in the parent directory (which is automatically added to JDV during the S2I process) and copies the VDB file into parent (which is also copied into the deployments folder as part of S2I).  This project is based on the jdg-remote-cache-materialization quickstart.
-        * [src/main/java/](./app/datagrid-materialization/src/main/java) - the pojo classes defining the data structure for the view
-        * [src/main/module/](./app/datagrid-materialization/src/main/module) - the module.xml file for the EAP module containing the pojo jar.  This is referenced by the resource adapter configuration used to connect to the cache.
-        * [src/main/vdb/](./app/datagrid-materialization/src/main/vdb) - the VDB file defining the views for the cache and materialization.
+    * [datagrid-materialization/](./app/datagrid-materialization/src/vdb/) - the VDB and its related .dodeploy file, that define the JDG source tables and the view to be materialized. These files are based on the jdg7.1-remote-cache-materialization quickstart.
 * [./derby/](./derby) - Derby specific DDL and instructions
 * [./h2/](./h2) - h2 specific DDL and instructions
 * [./mysql/](./mysql) - MySQL specific DDL and instructions
@@ -45,7 +42,7 @@ The datasources are configured using environment variables, which are defined th
 * resource adapters: (`RESOURCE_ADAPTERS` variable)
     * `MARKETDATA` is the resource adapter configuration for the market data files
     * `EXCEL` is the resource adapter configuration for the Excel files
-    * `MAT_CACHE` is the resource adapter configuration for the JDG cache used with materialization.  This is added to the `RESOURCE_ADAPTERS` list if the `jdg-remote-cache-mat-vdb.xml` is deployed on the server.
+    * `MAT_CACHE` is the resource adapter configuration for the JDG cache used for materialization.  This is added to the `RESOURCE_ADAPTERS` list if the `jdg-mat-cache-vdb.xml` is deployed on the server.
 
 The `QS_DB_TYPE` variable is used to define which datasource configuration is used and can be one of (all lower case): `derby`, `h2`, `mysql5` or `postgresql`.  By default, this is set to `h2`, but may be changed by editing the deployment configuration for the application.  This must be defined as part of the deployment configuration within OpenShift to have any affect on the VDB.  Setting it in [datasources.env](./datasources.env) will affect the datasource that gets created, but the VDB will use the translator specified by the setting on the deployment configuration.  The [portfolio-vdb.xml](./app/portfolio-vdb.xml) file uses `${env.QS_DB_TYPE:h2}` to select the translator that should be used with the _Accounts_ model, and defaults to `h2`.
 
@@ -66,7 +63,7 @@ This quickstart can be deployed as follows:
 
     * `SOURCE_REPOSITORY_URL`: https://github.com/jboss-openshift/openshift-quickstarts
     * `SOURCE_REPOSITORY_REF`: master
-    * `CONTEXT_DIR`: datavirt/dynamicvdb-datafederation/app
+    * `CONTEXT_DIR`: datavirt64/dynamicvdb-datafederation/app
 
     Remember to note the Teiid username and password (both randomly generated), which should be displayed after processing the template.  Optionally, you can specify your own values:
 
@@ -105,9 +102,9 @@ As a prerequisite, you will need to create a data grid service in your OpenShift
 be done by using one of the datagrid71-* templates (e.g. datagrid71-basic).  When processing the template,
 ensure the following parameters are set appropriately:
 
-* `DATAVIRT_CACHE_NAMES`=addressbook
+* `DATAVIRT_CACHE_NAMES`=stockCache
 
-The above will configure three caches: addressbook, addressbook_staging and addressbook_alias.
+The above will configure three caches: stockCache, ST_stockCache and teiid-alias-naming-cache.
 
 Once the data grid server is up and running, a materialized view based on a JDG cache can be added to the project by specifying the `DATAGRID_MATERIALIZATION` environment variable on the build configuration, e.g.:
 
@@ -115,5 +112,5 @@ Once the data grid server is up and running, a materialized view based on a JDG 
     $ oc env bc/datavirt-app DATAGRID_MATERIALIZATION=true
     ```
 
-This should trigger a new build, followed by a new deployment.  You can access the cache directly using the `PeopleMat.PersonMatCache` view, and you can access the materialized view at `PeopleMat.PersonMatModel`.  For more information, reference the jdg-remote-cache-materialization quickstart for Red Hat JBoss Data Virtualization.
+This should trigger the deployment of the VDB that defines the JDG materialized view.  You can access the cache directly using `Select * From StockJDGSource.StockCache` view, and you can access the materialized view at `select * from StocksMatView.Stock`.  For more information, reference the jdg7.1-remote-cache-materialization quickstart for Red Hat JBoss Data Virtualization.
  
