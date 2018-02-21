@@ -60,8 +60,8 @@ CREATE TABLE ACCOUNT
    SSN char(10),
    STATUS char(10),
    TYPE char(10),
-   DATEOPENED timestamp,
-   DATECLOSED timestamp,
+   DATEOPENED timestamp null,
+   DATECLOSED timestamp null,
    CONSTRAINT ACCOUNT_PK PRIMARY KEY(ACCOUNT_ID)
 );
 
@@ -79,7 +79,7 @@ CREATE TABLE  HOLDINGS
    TRANSACTION_ID integer AUTO_INCREMENT,
    ACCOUNT_ID integer,
    PRODUCT_ID integer,
-   PURCHASE_DATE timestamp,
+   PURCHASE_DATE timestamp null,
    SHARES_COUNT integer,
    CONSTRAINT HOLDINGS_PK PRIMARY KEY (TRANSACTION_ID)
 );

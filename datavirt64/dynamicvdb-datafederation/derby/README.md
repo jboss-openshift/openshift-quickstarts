@@ -14,10 +14,10 @@ The `datavirt64-extensions-support-s2i` template provides support for building t
 
 * `SOURCE_REPOSITORY_URL`: https://github.com/jboss-openshift/openshift-quickstarts
 * `SOURCE_REPOSITORY_REF`: master
-* `CONTEXT_DIR`: datavirt/dynamicvdb-datafederation/app
+* `CONTEXT_DIR`: datavirt64/dynamicvdb-datafederation/app
 * `EXTENSIONS_REPOSITORY_URL`: https://github.com/jboss-openshift/openshift-quickstarts
 * `EXTENSIONS_REPOSITORY_REF`: master
-* `EXTENSIONS_DIR`: datavirt/derby-driver-image
+* `EXTENSIONS_DIR`: datavirt64/derby-driver-image
 
 Remember to note the Teiid username and password (both randomly generated), which should be displayed after processing the template.  Optionally, you can specify your own values:
 

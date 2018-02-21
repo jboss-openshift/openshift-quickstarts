@@ -112,5 +112,5 @@ Once the data grid server is up and running, a materialized view based on a JDG 
     $ oc env bc/datavirt-app DATAGRID_MATERIALIZATION=true
     ```
 
-This should trigger the deployment of the VDB that defines the JDG materialized view.  You can access the cache directly using `Select * From StockJDGSource.StockCache` view, and you can access the materialized view at `select * from StocksMatView.Stock`.  For more information, reference the jdg7.1-remote-cache-materialization quickstart for Red Hat JBoss Data Virtualization.
+This should trigger a new build, followed by a new deployment.  You can access the cache directly using `Select * From StockJDGSource.StockCache` view, and you can access the materialized view at `select * from StocksMatView.Stock`.  For more information, reference the jdg7.1-remote-cache-materialization quickstart for Red Hat JBoss Data Virtualization.
  

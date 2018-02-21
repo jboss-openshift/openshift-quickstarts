@@ -16,7 +16,7 @@ The username and password parameters match what is defined in [datasources.env](
 Once the database is up and running, the tables and seed data can be installed by invoking the following:
 
 ```
-$ cat customer-schema.sql |  oc exec accounts-mysql5-1-22hwq -i -- scl enable rh-mysql56 -- mysql -u '$MYSQL_USER' '-p$MYSQL_PASSWORD' -h '$ACCOUNTS_MYSQL5_SERVICE_HOST' accounts
+$ cat customer-schema.sql |  oc exec accounts-mysql5-1-22hwq -i -- scl enable rh-mysql56 -- mysql -u '$MYSQL_USER' -p '$MYSQL_PASSWORD' -h '$ACCOUNTS_MYSQL5_SERVICE_HOST' accounts
 ```
 
 > Note: replace `accounts-mysql5-1-22hwq` with the pod name from your environment.  Also note the single quote marks around some of the paramters.  These ensure the variables are expanded from the pod's environment, not from your client's environment.
