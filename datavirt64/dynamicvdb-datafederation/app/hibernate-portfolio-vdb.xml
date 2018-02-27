@@ -10,8 +10,8 @@
 
     <model name="ProductPricingModel" type="VIRTUAL">
          <metadata type="DDL"><![CDATA[
-            CREATE VIEW ProductInfo (id integer OPTIONS(UPDATABLE 'TRUE'), symbol varchar(10) OPTIONS(UPDATABLE 'TRUE'), companyName varchar(100) OPTIONS(UPDATABLE 'TRUE'), price decimal OPTIONS(UPDATABLE 'FALSE') ) OPTIONS (UPDATABLE 'TRUE'  ) AS 
-select P.id, P.symbol, P.company_name, S.price from Accounts.product as P, (call MarketData.getTextFiles('*.txt')) f, TEXTTABLE(f.file COLUMNS symbol string, price bigdecimal HEADER) as S where P.symbol=S.symbol;
+            CREATE VIEW ProductInfo (myid integer PRIMARY KEY, id integer OPTIONS(UPDATABLE 'TRUE'), symbol varchar(10) OPTIONS(UPDATABLE 'TRUE'), companyName varchar(100) OPTIONS(UPDATABLE 'TRUE'), price decimal OPTIONS(UPDATABLE 'FALSE') ) OPTIONS (UPDATABLE 'TRUE'  ) AS 
+select ROW_NUMBER() OVER (ORDER BY P.id) as myid, P.id, P.symbol, P.company_name, S.price from Accounts.product as P, (call MarketData.getTextFiles('*.txt')) f, TEXTTABLE(f.file COLUMNS symbol string, price bigdecimal HEADER) as S where P.symbol=S.symbol;
  
  			CREATE TRIGGER ON ProductInfo INSTEAD OF INSERT AS
  			   FOR EACH ROW
