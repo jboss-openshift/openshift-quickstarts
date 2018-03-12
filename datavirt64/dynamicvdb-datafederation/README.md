@@ -25,6 +25,7 @@ The directory structure is organized as follows:
     * [data/teiidfiles/data/](./app/data/teiidfiles/data) - the file data for the `market-data` resource
     * [data/teiidfiles/excelFiles/](./app/data/teiidfiles/excelFiles) - the file data for the `excel-file` resource
     * [datagrid-materialization/](./app/datagrid-materialization/src/vdb/) - the VDB and its related .dodeploy file, that define the JDG source tables and the view to be materialized. These files are based on the jdg7.1-remote-cache-materialization quickstart.
+* [./app/](./resources/secrets) - the datavirt-app-secret.yaml secrets file used for testing
 * [./derby/](./derby) - Derby specific DDL and instructions
 * [./h2/](./h2) - h2 specific DDL and instructions
 * [./mysql/](./mysql) - MySQL specific DDL and instructions
@@ -54,10 +55,17 @@ The configuration details are passed to the pod through a secret.
 
 This quickstart can be deployed as follows:
 
-1.  Instantiate one of the following templates:
+1.  Create the secret for the datasource configuration.
 
-    * `datavirt64-basic-s2i`
-    * `datavirt64-secured-s2i` (includes configuration for https and jdbc (over SNI) routes)
+    ```
+    $ oc secrets new datavirt-app-config datasources.env
+    ```
+    
+2.  Instantiate one of the following templates:
+
+    * `datavirt64-basic-s2i`   (needs datavirt-app-config)
+    * `datavirt64-secured-s2i` (needs datavirt-app-config and datavirt-app-secret same as datavirt64-extensions-support-s2i in derby guide)
+        includes configuration for https and jdbc (over SNI) routes
 
     Specifying parameters as follows:
 
@@ -72,11 +80,10 @@ This quickstart can be deployed as follows:
 
     > Note: the password must adhere to the password strength rules or deployment will fail.
 
-2.  Create the secret for the datasource configuration.
-
-    ```
-    $ oc secrets new datavirt-app-config datasources.env
-    ```
+    In case you follow materialization guide there needs to be added materialization VDB project parameter:
+        *  VDB Deployment Directories (VDB_DIRS): ".,datagrid-materialization/src/vdb" 
+ 
+    Verify by trying this url: http://{route-address}/odata/Portfolio  (asks for teiidUser, sup3rSecret!)
 
 3.  Link the secret to the service account used by the application.
 
@@ -84,7 +91,7 @@ This quickstart can be deployed as follows:
     $ oc secrets link datavirt-service-account datavirt-app-config
     ```
 
-4.  Experiment with other the database types.
+4.  Experiment with other the database types. 
 
     Add `QS_DB_TYPE` to the `datavirt-app` deployment configuration, e.g.:
 
@@ -94,7 +101,7 @@ This quickstart can be deployed as follows:
 
     Set this to one of the values listed in the _Datasource Configuration_ section.  Follow the type specific instructions for initializing the database (e.g. seeding the data).  After modifying the deployment configuration, the current deployment should be replaced with a new deployment containing your changes.
 
-> Note: Steps two and three are unnecessary if using the [datavirt-app-secret](https://github.com/jboss-openshift/application-templates/blob/master/secrets/datavirt-app-secret.yaml), as `datavirt-app-config` secret is defined and linked to the service account when that file is installed (e.g. `oc create -f application-templates/secrets/datavirt-app-secret.yaml`).
+> Note: Steps one and three are unnecessary if using the [datavirt-app-secret](https://github.com/jboss-openshift/openshift-quickstarts/blob/master/datavirt64/dynamicvdb-datafederation/app/resources/secrets/datavirt-app-secret.yaml), as `datavirt-app-config` secret is defined and linked to the service account when that file is installed (e.g. `oc create -f application-templates/secrets/datavirt-app-secret.yaml`).
 
 ### Using Red Hat JBoss Data Grid for Materialization
 
@@ -102,7 +109,13 @@ As a prerequisite, you will need to create a data grid service in your OpenShift
 be done by using one of the datagrid71-* templates (e.g. datagrid71-basic).  When processing the template,
 ensure the following parameters are set appropriately:
 
-* `DATAVIRT_CACHE_NAMES`=stockCache
+    * USERNAME=jdg
+    * PASSWORD=JBoss.123
+    * JDG User Roles/Groups(ADMIN_GROUP)=admin,___schema_manager
+    * HOTROD_AUTHENTICATION=true
+    * CONTAINER_SECURITY_ROLE_MAPPER=identity-role-mapper
+    * CONTAINER_SECURITY_ROLES="admin=ALL,jdg=ALL"
+    * DATAVIRT_CACHE_NAMES=stockCache
 
 The above will configure three caches: stockCache, ST_stockCache and teiid-alias-naming-cache.
 
