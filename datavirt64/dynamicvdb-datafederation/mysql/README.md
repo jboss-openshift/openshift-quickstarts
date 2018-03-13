@@ -16,18 +16,22 @@ The username and password parameters match what is defined in [datasources.env](
 Once the database is up and running, the tables and seed data can be installed by invoking the following:
 
 ```
-$ cat customer-schema.sql |  oc exec accounts-mysql5-1-22hwq -i -- scl enable rh-mysql56 -- mysql -u '$MYSQL_USER' -p '$MYSQL_PASSWORD' -h '$ACCOUNTS_MYSQL5_SERVICE_HOST' accounts
+$ cat customer-schema.sql |  oc exec accounts-mysql5-1-22hwq -i -- scl enable rh-mysql57 -- mysql -u '$MYSQL_USER' -p'$MYSQL_PASSWORD' -h '$ACCOUNTS_MYSQL5_SERVICE_HOST' accounts
 ```
 
-> Note: replace `accounts-mysql5-1-22hwq` with the pod name from your environment.  Also note the single quote marks around some of the paramters.  These ensure the variables are expanded from the pod's environment, not from your client's environment.
+> Note: replace `accounts-mysql5-1-22hwq` with the pod name from your environment.  Also note the single quote marks around some of the paramters.  These ensure the variables are expanded from the pod's environment, not from your client's environment.  Additionally, no space between -p and '$MYSQL_PASSWORD'.
 
-The above command simply pipes the SQL commands through to `mysql` running inside the pod.  The `-i` option allows stdin to be forwarded to the executed command and the `scl` command is required so the `mysql` command will resolve appropriately (i.e. it _enables_ the _rh-mysql56_ software collection).
+The above command simply pipes the SQL commands through to `mysql` running inside the pod.  The `-i` option allows stdin to be forwarded to the executed command and the `scl` command is required so the `mysql` command will resolve appropriately (i.e. it _enables_ the _rh-mysql57_ software collection).
 
 ## Running the QuickStart
 
-Follow the instructions in the main [README](../README.md) and set `QS_DB_TYPE=mysql5`, e.g.:
+1.  Follow the instructions in the main [README](../README.md)
 
-```
-$ oc env dc/datavirt-app QS_DB_TYPE=mysql5
-```
+2.  Set the database type. 
+
+    Add `QS_DB_TYPE` to the `datavirt-app` deployment configuration, e.g.:
+
+    ```
+    $ oc env dc/datavirt-app QS_DB_TYPE=mysql5
+    ```
 
