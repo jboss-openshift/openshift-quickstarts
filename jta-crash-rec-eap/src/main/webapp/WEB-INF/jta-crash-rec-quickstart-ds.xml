@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     JBoss, Home of Professional Open Source
-    Copyright 2014, Red Hat, Inc. and/or its affiliates, and individual
+    Copyright 2015, Red Hat, Inc. and/or its affiliates, and individual
     contributors by the @authors tag. See the copyright.txt in the
     distribution for a full listing of individual contributors.
 
@@ -15,16 +15,16 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<!-- This is an unmanaged datasource. It should be used for proofs of concept 
-   or testing only. It uses H2, a lightweight, in-memory, example database that 
-   ships with JBoss EAP. It is not robust or scalable, is not supported, 
-   and should NOT be used in a production environment! -->  
+<!-- This is an unmanaged datasource. It should be used for proofs of concept
+   or testing only. It uses H2, a lightweight, in-memory, example database that
+   ships with JBoss EAP. It is not robust or scalable, is not supported,
+   and should NOT be used in a production environment! -->
 <datasources xmlns="http://www.jboss.org/ironjacamar/schema"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.jboss.org/ironjacamar/schema http://docs.jboss.org/ironjacamar/schema/datasources_1_0.xsd">
     <xa-datasource jndi-name="java:jboss/datasources/JTACrashRecQuickstartDS" pool-name="JTACrashRecQuickstart" enabled="true" use-ccm="false">
         <xa-datasource-property name="URL">
-            jdbc:h2:file:${jboss.server.data.dir}/jta-crash-rec-quickstart;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1
+            jdbc:h2:file:${jboss.server.data.dir}/../../jta-crash-rec-quickstart;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1
         </xa-datasource-property>
         <driver>h2</driver>
         <xa-pool>
