@@ -1,2 +1,2 @@
 # openshift-quickstarts
-Quickstarts used by templates in github.com/jboss-openshift/application-templates
+Quickstarts used by templates in https://github.com/jboss-openshift/application-templates
