@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<kmodule xmlns="http://jboss.org/kie/6.0.0/kmodule">
-	<kbase name="hello-world" packages="com.redhat.xpaas.brms" default="true">
-		<ksession name="helo-world-session" default="true"/>
-	</kbase>
-</kmodule>

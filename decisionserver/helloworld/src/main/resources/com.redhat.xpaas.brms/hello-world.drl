@@ -1,9 +1,0 @@
-package com.redhat.xpaas.brms
-
-rule "Greet the world"
-    when
-        $name: String()
-        not String(this != $name)
-    then
-        insert("Hello world from " + $name + "!");
-end

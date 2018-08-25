@@ -1,1 +1,0 @@
-An example of an extensions image that provides a Derby database driver for EAP.
