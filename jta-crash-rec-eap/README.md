@@ -87,8 +87,12 @@ This quickstarts uses the [JBoss EAP docker image](https://access.redhat.com/doc
 When the JBoss EAP imaget streams are deployed you will just import the template and
 create the application.
 
-For tha JBoss EAP 6.4.x use the template `eap64-qs-test-s2i.json`.
-For the JBoss EAP 7.0.x use the template `eap70-qs-test-s2i.json`.
+For JBoss EAP 7.1.x, see https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.1/html/red_hat_jboss_enterprise_application_platform_for_openshift/advanced_tutorials#transaction_recovery_demo
+
+For JBoss EAP CD, see 'Getting Started with JBoss EAP for OpenShift Container Platform' section of the documetation at: https://access.redhat.com/documentation/en-us/jboss_enterprise_application_platform_continuous_delivery/
+
+For JBoss EAP 7.1.x use the template `eap71-qs-test-s2i.json`.
+For JBoss EAP 6.4.x use the template `eap64-qs-test-s2i.json`.
 
 ### JBoss EAP 6.4.x
 
@@ -97,11 +101,11 @@ oc create -f eap64-qs-test-s2i.json
 oc new-app --template=eap64-qs-test-s2i
 ```
 
-### JBoss EAP 7.0.x
+### JBoss EAP 7.1.x
 
 ```bash
-oc create -f eap70-qs-test-s2i.json
-oc new-app --template=eap70-qs-test-s2i.json
+oc create -f eap71-qs-test-s2i.json
+oc new-app --template=eap71-qs-test-s2i.json
 ```
 
 ### Access the application 
