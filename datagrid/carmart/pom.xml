@@ -53,7 +53,7 @@
 
         <!-- test dependencies versions -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>4.8.2</junit.version>
+        <junit.version>4.13.1</junit.version>
         <arquillian.bom.version>1.1.1.Final</arquillian.bom.version>
         <arquillian.drone.bom.version>1.2.0.Beta1</arquillian.drone.bom.version>
         <jboss.as7.version>7.2.0.Final</jboss.as7.version>
