@@ -28,4 +28,23 @@
         <maven.compiler.source>1.8</maven.compiler.source>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>jdk11</id>
+            <activation>
+                <jdk>[11,)</jdk>
+            </activation>
+            <properties>
+                <jaxb.version>2.3.1</jaxb.version>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                    <version>${jaxb.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
 </project>
